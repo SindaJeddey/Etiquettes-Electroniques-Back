@@ -1,13 +1,18 @@
 package project.EE.security;
 
+import com.google.common.collect.Sets;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Set;
+
 public enum ApplicationRoles {
-    ADMIN("ROLE_ADMIN"),
-    SUPER_OPERATOR("ROLE_SUPER_OPERATOR"),
-    OPERATOR("ROLE_OPERATOR");
+    ADMIN(Sets.newHashSet(new SimpleGrantedAuthority("ROLE_ADMIN"))),
+    SUPER_OPERATOR(Sets.newHashSet(new SimpleGrantedAuthority("ROLE_SUPER_OPERATOR"))),
+    OPERATOR(Sets.newHashSet(new SimpleGrantedAuthority("ROLE_OPERATOR")));
 
-    private final String role;
+    private final Set<SimpleGrantedAuthority> roles;
 
-    ApplicationRoles(String role) {
-        this.role = role;
+    ApplicationRoles(Set<SimpleGrantedAuthority> roles) {
+        this.roles = roles;
     }
 }

@@ -15,4 +15,8 @@ public enum ApplicationRoles {
     ApplicationRoles(Set<SimpleGrantedAuthority> roles) {
         this.roles = roles;
     }
+
+    public Set<SimpleGrantedAuthority> getRoles() {
+        return roles;
+    }
 }

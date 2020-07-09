@@ -3,6 +3,8 @@ package project.EE.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,10 +19,13 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 
+
+@Slf4j
 public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
+    @Autowired
     public JwtUsernameAndPasswordFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
@@ -34,7 +39,7 @@ public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthentication
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getUsername(),
-                    authenticationRequest.getPasword()
+                    authenticationRequest.getPassword()
             );
 
             Authentication authenticated = authenticationManager.authenticate(authentication);
@@ -57,6 +62,5 @@ public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthentication
                 .signWith(Keys.hmacShaKeyFor("secretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKey".getBytes()))
                 .compact();
         response.addHeader("Authorization","Bearer "+jwtToken);
-        chain.doFilter(request,response);
     }
 }

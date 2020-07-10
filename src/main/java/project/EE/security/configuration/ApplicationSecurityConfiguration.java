@@ -14,11 +14,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import project.EE.security.ApplicationRoles;
 import project.EE.security.handlers.AuthenticationFailedHandler;
 import project.EE.security.handlers.UserAccessDeniedHandler;
 import project.EE.security.jwt.JwtUsernameAndPasswordFilter;
 import project.EE.security.jwt.JwtVerifierFilter;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -34,6 +39,7 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .csrf().disable()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -69,7 +75,17 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return new UserAccessDeniedHandler();
     }
 
+    @Bean
     public AuthenticationFailureHandler authenticationFailureHandler(){
         return new AuthenticationFailedHandler();
     }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        return source;
+    }
+
+
 }

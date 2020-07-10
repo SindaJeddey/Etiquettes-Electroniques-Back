@@ -43,6 +43,7 @@ public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthentication
             );
 
             Authentication authenticated = authenticationManager.authenticate(authentication);
+            System.out.println(authenticated);
             return authenticated;
 
         } catch (IOException e) {

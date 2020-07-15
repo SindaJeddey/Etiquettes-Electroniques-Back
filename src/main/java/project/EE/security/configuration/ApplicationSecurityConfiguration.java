@@ -39,17 +39,19 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .requiresChannel()
-                .anyRequest()
-                .requiresSecure()
-                .and()
+
                 .cors().and()
                 .csrf().disable()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .requiresChannel()
+                .anyRequest()
+                .requiresSecure()
+                .and()
                 .authorizeRequests()
-                .anyRequest().authenticated()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .addFilter(new JwtUsernameAndPasswordFilter(authenticationManager()))
                 .addFilterAfter(new JwtVerifierFilter(),JwtUsernameAndPasswordFilter.class)

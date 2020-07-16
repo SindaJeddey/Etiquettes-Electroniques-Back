@@ -1,4 +1,4 @@
-package project.EE;
+package project.EE.bootstrap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

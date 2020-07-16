@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import project.EE.models.User;
 import project.EE.repositories.UserRepository;
 
@@ -19,6 +20,9 @@ class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    PasswordEncoder passwordEncoder;
+
     @InjectMocks
     UserService userService;
 
@@ -26,17 +30,14 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        user.setId(1L);
-        user.setUsername("sady");
+        user = User.builder().username("sady").id(1L).build();
     }
 
 
     @Test
     void saveNewUser() {
         when(userRepository.save(any())).thenReturn(user);
-        User toSave = new User();
-        toSave.setUsername("ghj");
+        User toSave = User.builder().username("fds").build();
         User saved = userService.saveNewUser(toSave);
 
         assertNotNull(saved);

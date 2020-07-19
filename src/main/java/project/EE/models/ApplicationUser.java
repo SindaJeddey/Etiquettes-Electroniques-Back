@@ -17,7 +17,7 @@ public class ApplicationUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Sets.newHashSet(new SimpleGrantedAuthority(user.getRole()));
+        return Sets.newHashSet(new SimpleGrantedAuthority("ROLE_"+user.getRole()));
     }
 
     @Override

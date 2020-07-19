@@ -3,9 +3,10 @@ package project.EE.dto;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
-import com.sun.org.apache.regexp.internal.RE;
+import org.springframework.stereotype.Component;
 import project.EE.models.User;
 
+@Component
 public class UserDTOToUserConverter implements Converter<UserDTO, User> {
     @Override
     public User convert(UserDTO userDTO) {
@@ -16,6 +17,7 @@ public class UserDTOToUserConverter implements Converter<UserDTO, User> {
         user.setName(userDTO.getName());
         user.setLastName(userDTO.getLastName());
         user.setUsername(userDTO.getUsername());
+        user.setPassword(userDTO.getPassword());
         user.setBirthday(userDTO.getBirthday());
         user.setEmail(userDTO.getEmail());
         user.setRole(userDTO.getRole());

@@ -1,6 +1,7 @@
 package project.EE.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.EE.models.User;
@@ -24,5 +25,11 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
         return savedUser;
+    }
+
+    public User getUserById(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User id "+id+" not found"));
+        return user;
     }
 }

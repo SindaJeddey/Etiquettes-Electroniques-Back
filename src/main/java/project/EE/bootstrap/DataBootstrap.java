@@ -29,21 +29,21 @@ public class DataBootstrap implements CommandLineRunner {
                 .password("123")
                 .role(UserRoles.ADMIN.name())
                 .build();
-        userService.saveNewUser(admin);
+        userService.saveUser(admin);
 
         User operator = User.builder()
                 .username("operator")
                 .password("123")
                 .role(UserRoles.OPERATOR.name())
                 .build();
-        userService.saveNewUser(operator);
+        userService.saveUser(operator);
 
         User superOperator = User.builder()
                 .username("super_operator")
                 .password("123")
                 .role(UserRoles.SUPER_OPERATOR.name())
                 .build();
-        userService.saveNewUser(superOperator);
+        userService.saveUser(superOperator);
 
         log.info("Users loaded in database ...");
 

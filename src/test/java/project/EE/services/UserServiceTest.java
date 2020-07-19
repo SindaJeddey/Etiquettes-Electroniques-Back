@@ -38,7 +38,7 @@ class UserServiceTest {
     void saveNewUser() {
         when(userRepository.save(any())).thenReturn(user);
         User toSave = User.builder().username("fds").build();
-        User saved = userService.saveNewUser(toSave);
+        User saved = userService.saveUser(toSave);
 
         assertNotNull(saved);
         assertEquals(saved.getId(),user.getId());

@@ -28,6 +28,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .username("admin")
                 .password("123")
                 .role(UserRoles.ADMIN.name())
+                .email("admin@admin.com")
                 .build();
         userService.saveUser(admin);
 
@@ -35,6 +36,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .username("operator")
                 .password("123")
                 .role(UserRoles.OPERATOR.name())
+                .email("operator@operator.com")
                 .build();
         userService.saveUser(operator);
 
@@ -42,6 +44,7 @@ public class DataBootstrap implements CommandLineRunner {
                 .username("super_operator")
                 .password("123")
                 .role(UserRoles.SUPER_OPERATOR.name())
+                .email("supop@supop.com")
                 .build();
         userService.saveUser(superOperator);
 

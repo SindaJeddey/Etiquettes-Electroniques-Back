@@ -33,7 +33,7 @@ public class MailSendingService {
         };
         try{
             javaMailSender.send(messagePreparator);
-            log.info("Activation Mail Sent !");
+            log.info("Mail Sent !");
         }
         catch (MailException e){
             throw new RuntimeException("Exception occurred when sending mail to "+email.getRecipient());

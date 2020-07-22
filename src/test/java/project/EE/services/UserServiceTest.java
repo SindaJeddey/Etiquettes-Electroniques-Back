@@ -7,12 +7,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import project.EE.exceptions.UserNotFoundException;
 import project.EE.models.User;
+import project.EE.models.UserRoles;
 import project.EE.repositories.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -30,7 +32,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = User.builder().username("sady").id(1L).build();
+        user = User.builder().username("sady").id(1L).role(UserRoles.ADMIN.name()).build();
     }
 
 
@@ -43,5 +45,12 @@ class UserServiceTest {
         assertNotNull(saved);
         assertEquals(saved.getId(),user.getId());
         assertEquals(saved.getUsername(),user.getUsername());
+    }
+
+    @Test
+    void deleteUser() throws UserNotFoundException {
+        when(userRepository.findByUsername(anyString())).thenReturn(java.util.Optional.ofNullable(user));
+        userService.deleteUser("ha",UserRoles.ADMIN.name());
+        verify(userRepository,times(1)).delete(any(User.class));
     }
 }

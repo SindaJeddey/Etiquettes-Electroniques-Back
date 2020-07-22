@@ -55,11 +55,11 @@ public class JwtVerifierFilter extends OncePerRequestFilter {
                     username,null,grantedAuthorities
             );
 
+            httpServletRequest.setAttribute("user",username);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (JwtException e){
             throw new IllegalStateException((String.format("Token %s cannot be trusted",token)));
         }
-
         filterChain.doFilter(httpServletRequest,httpServletResponse);
 
     }

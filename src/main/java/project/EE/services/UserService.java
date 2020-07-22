@@ -1,14 +1,18 @@
 package project.EE.services;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.EE.dto.UserDTO;
 import project.EE.dto.UserDTOToUserConverter;
 import project.EE.dto.UserToUserDTOConverter;
+import project.EE.exceptions.UserNotFoundException;
 import project.EE.models.User;
 import project.EE.repositories.UserRepository;
 
 @Service
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -40,5 +44,52 @@ public class UserService {
     public User saveUser(User user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
+    }
+
+    public UserDTO updateUserRole (String username, UserDTO userDTO) throws UserNotFoundException {
+        User toUpdate = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
+
+        UserDTO savedDto;
+        if (toUpdate.getRole().equals(userDTO.getRole())){
+            savedDto = toUserDTOConverter.convert(toUpdate);
+            savedDto.setPassword(null);
+            return savedDto;
+        }
+
+        toUpdate.setRole(userDTO.getRole());
+        User updated = userRepository.save(toUpdate);
+        savedDto = toUserDTOConverter.convert(updated);
+        savedDto.setPassword(null);
+        return savedDto;
+    }
+
+    public void deleteUser(String username, String role) throws UserNotFoundException {
+        User toDelete = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username "+username +"not found"));
+        if (!toDelete.getRole().equals(role))
+            throw new UsernameNotFoundException("Incompatible username "+username+" with role "+role);
+        userRepository.delete(toDelete);
+        log.info("User "+username+" deleted");
+    }
+
+    public UserDTO updateUser(String username, UserDTO userDTO, String role) throws UserNotFoundException {
+        User toUpdate = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
+        if (!toUpdate.getRole().equals(role))
+            throw new UserNotFoundException("Can't find Username "+username+" with role"+role);
+        if(userDTO.getName()!=null)
+            toUpdate.setName(userDTO.getName());
+        if(userDTO.getLastName()!=null)
+            toUpdate.setLastName(userDTO.getLastName());
+        if(userDTO.getBirthday()!=null)
+            toUpdate.setBirthday(userDTO.getBirthday());
+        if(userDTO.getEmail()!=null)
+            toUpdate.setEmail(userDTO.getEmail());
+        if(userDTO.getPassword()!=null)
+            toUpdate.setPassword(userDTO.getPassword());
+        User updated = userRepository.save(toUpdate);
+        UserDTO savedDto = toUserDTOConverter.convert(updated);
+        return savedDto;
     }
 }

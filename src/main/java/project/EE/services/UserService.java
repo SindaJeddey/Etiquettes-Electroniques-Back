@@ -11,6 +11,9 @@ import project.EE.exceptions.UserNotFoundException;
 import project.EE.models.User;
 import project.EE.repositories.UserRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
 public class UserService {
@@ -78,6 +81,8 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
         if (!toUpdate.getRole().equals(role))
             throw new UserNotFoundException("Can't find Username "+username+" with role"+role);
+        if(userDTO.getUsername()!=null)
+            throw new RuntimeException("Username is unique. You can't change it.");
         if(userDTO.getName()!=null)
             toUpdate.setName(userDTO.getName());
         if(userDTO.getLastName()!=null)
@@ -91,5 +96,17 @@ public class UserService {
         User updated = userRepository.save(toUpdate);
         UserDTO savedDto = toUserDTOConverter.convert(updated);
         return savedDto;
+    }
+
+    public List<UserDTO> getAllUsers(String role){
+        List<UserDTO> dtos = userRepository.findAllByRole(role)
+                .stream()
+                .map(user -> toUserDTOConverter.convert(user))
+                .map(userDTO -> {
+                    userDTO.setPassword(null);
+                    return userDTO;
+                })
+                .collect(Collectors.toList());
+        return dtos;
     }
 }

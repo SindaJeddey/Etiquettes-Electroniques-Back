@@ -10,6 +10,8 @@ import project.EE.models.UserRoles;
 import project.EE.services.MailSendingService;
 import project.EE.services.UserService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/operators")
 @Slf4j
@@ -22,6 +24,12 @@ public class OperatorController {
                               MailSendingService mailSendingService) {
         this.userService = userService;
         this.mailSendingService = mailSendingService;
+    }
+
+    @GetMapping
+    @PreAuthorize("permitAll()")
+    public List<UserDTO> getAllOperators (){
+        return userService.getAllUsers(UserRoles.OPERATOR.name());
     }
 
     @PostMapping("/new")

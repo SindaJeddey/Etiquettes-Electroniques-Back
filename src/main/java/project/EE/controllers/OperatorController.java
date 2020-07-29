@@ -71,7 +71,7 @@ public class OperatorController {
         if (!user.equals(username))
             throw new RuntimeException("User DATA can't be modified by another user");
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.OPERATOR.name());
-        NotificationEmail email = new NotificationEmail(
+        NotificationEmail account_modification = new NotificationEmail(
                 "Account Modification",
                 dto.getEmail(),
                 String.format("Dear %s %s,\nYour account has been modified." +
@@ -82,7 +82,7 @@ public class OperatorController {
                         dto.getLastName(),dto.getUsername(),
                         dto.getPassword(),dto.getEmail(),dto.getBirthday())
         );
-        mailSendingService.sendMail(email);
+        mailSendingService.sendMail(account_modification);
         dto.setPassword(null);
         return dto;
     }

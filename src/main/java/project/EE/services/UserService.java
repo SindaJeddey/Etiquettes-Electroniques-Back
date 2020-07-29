@@ -9,6 +9,7 @@ import project.EE.dto.UserDTOToUserConverter;
 import project.EE.dto.UserToUserDTOConverter;
 import project.EE.exceptions.UserNotFoundException;
 import project.EE.models.User;
+import project.EE.models.UserRoles;
 import project.EE.repositories.UserRepository;
 
 import java.util.List;
@@ -108,5 +109,13 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
         return dtos;
+    }
+
+
+    public UserDTO getUserByEmail(String email) throws UserNotFoundException {
+        UserDTO dto = userRepository.findByEmail(email)
+                .map(user -> toUserDTOConverter.convert(user))
+                .orElseThrow(() -> new UserNotFoundException("Can't find user with email "+email));
+        return dto;
     }
 }

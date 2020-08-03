@@ -8,8 +8,9 @@ import project.EE.dto.UserDTO;
 import project.EE.dto.UserDTOToUserConverter;
 import project.EE.dto.UserToUserDTOConverter;
 import project.EE.exceptions.UserNotFoundException;
+import project.EE.models.PasswordResetToken;
 import project.EE.models.User;
-import project.EE.models.UserRoles;
+import project.EE.repositories.PasswordResetTokenRepository;
 import project.EE.repositories.UserRepository;
 
 import java.util.List;
@@ -22,15 +23,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserDTOToUserConverter toUserConverter;
     private final UserToUserDTOConverter toUserDTOConverter;
+    private final PasswordResetService passwordResetService;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
                        UserDTOToUserConverter toUserConverter,
                        UserToUserDTOConverter toUserDTOConverter,
+                       PasswordResetService passwordResetService,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.toUserConverter = toUserConverter;
         this.toUserDTOConverter = toUserDTOConverter;
+        this.passwordResetService = passwordResetService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -118,4 +122,21 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Can't find user with email "+email));
         return dto;
     }
+
+    public void createPasswordResetToken(UserDTO dto, String token) {
+        User user = toUserConverter.convert(dto);
+        PasswordResetToken resetToken = passwordResetService.saveNewToken(token,user);
+        user.setResetToken(resetToken);
+        userRepository.save(user);
+    }
+
+    public UserDTO userPasswordReset(String email, String password) throws UserNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new UserNotFoundException("Email "+email+"not found"));
+        user.setPassword(passwordEncoder.encode(password));
+        User saved = userRepository.save(user);
+        UserDTO savedDto = toUserDTOConverter.convert(saved);
+        return savedDto;
+    }
+
 }

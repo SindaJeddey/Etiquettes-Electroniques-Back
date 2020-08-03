@@ -32,4 +32,8 @@ public class User {
     private String email;
 
     private String role;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "reset_token_id")
+    private PasswordResetToken resetToken;
 }

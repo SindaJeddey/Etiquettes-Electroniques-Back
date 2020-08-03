@@ -55,8 +55,7 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
                 .requiresSecure()
                 .and()
                 .authorizeRequests()
-                .anyRequest()
-                .authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
     }

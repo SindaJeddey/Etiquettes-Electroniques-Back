@@ -11,6 +11,7 @@ import project.EE.repositories.UserRepository;
 @Service
 public class ApplicationUserService implements UserDetailsService {
 
+    //Testing ...
     private final UserRepository userRepository;
 
     public ApplicationUserService(UserRepository userRepository) {

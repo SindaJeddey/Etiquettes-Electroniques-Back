@@ -10,7 +10,6 @@ import project.EE.dto.UserToUserDTOConverter;
 import project.EE.exceptions.UserNotFoundException;
 import project.EE.models.PasswordResetToken;
 import project.EE.models.User;
-import project.EE.repositories.PasswordResetTokenRepository;
 import project.EE.repositories.UserRepository;
 
 import java.util.List;

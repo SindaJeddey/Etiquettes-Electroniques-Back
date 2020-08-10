@@ -28,10 +28,10 @@ public class DataBootstrap implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
        loadUsers();
-       loadProducts();
+       loadProductsAndCategories();
     }
 
-    private void loadProducts() {
+    private void loadProductsAndCategories() {
         Product product1 = Product.builder()
                 .name("Product 1")
                 .quantity(300L)

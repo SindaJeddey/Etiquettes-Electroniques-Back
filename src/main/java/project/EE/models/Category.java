@@ -3,24 +3,22 @@ package project.EE.models;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
-public class Product {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Long quantity;
-    private LocalDate addedDate;
 
-    @ManyToOne
-    private Category category;
-
+    @OneToMany
+    private Set<Product> productSet = new HashSet<>();
 }

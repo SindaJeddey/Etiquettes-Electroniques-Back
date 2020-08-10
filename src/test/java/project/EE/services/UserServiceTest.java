@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import project.EE.exceptions.UserNotFoundException;
+import project.EE.exceptions.NotFoundException;
 import project.EE.models.User;
 import project.EE.models.UserRoles;
 import project.EE.repositories.UserRepository;
@@ -48,7 +48,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUser() throws UserNotFoundException {
+    void deleteUser() throws NotFoundException {
         when(userRepository.findByUsername(anyString())).thenReturn(java.util.Optional.ofNullable(user));
         userService.deleteUser("ha",UserRoles.ADMIN.name());
         verify(userRepository,times(1)).delete(any(User.class));

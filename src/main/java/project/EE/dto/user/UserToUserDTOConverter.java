@@ -1,4 +1,4 @@
-package project.EE.dto;
+package project.EE.dto.user;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;

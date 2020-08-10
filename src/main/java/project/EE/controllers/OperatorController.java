@@ -3,8 +3,8 @@ package project.EE.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import project.EE.dto.UserDTO;
-import project.EE.exceptions.UserNotFoundException;
+import project.EE.dto.user.UserDTO;
+import project.EE.exceptions.NotFoundException;
 import project.EE.models.NotificationEmail;
 import project.EE.models.UserRoles;
 import project.EE.services.MailSendingService;
@@ -35,6 +35,8 @@ public class OperatorController {
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newOperator(@RequestBody UserDTO dto){
+        if (dto == null)
+            throw new IllegalArgumentException("Must provide a user to save");
         UserDTO savedDto = userService.saveNewUser(dto,UserRoles.OPERATOR.name());
         NotificationEmail email = new NotificationEmail(
                 "Account Activation",
@@ -50,7 +52,9 @@ public class OperatorController {
     @PutMapping("/operator")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO updateOperatorRole (@RequestParam String username, @RequestBody UserDTO userDTO )
-            throws UserNotFoundException {
+            throws NotFoundException {
+        if (userDTO == null)
+            throw new IllegalArgumentException("Must provide a user to save");
         UserDTO updatedDto = userService.updateUserRole(username,userDTO);
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
@@ -67,7 +71,9 @@ public class OperatorController {
     @PreAuthorize("hasAuthority('ROLE_OPERATOR')")
     public UserDTO updateOperator(@RequestAttribute String user,
                                   @RequestParam String username,
-                                  @RequestBody UserDTO userDTO) throws UserNotFoundException {
+                                  @RequestBody UserDTO userDTO) throws NotFoundException {
+        if (userDTO == null)
+            throw new IllegalArgumentException("Must provide a user to save");
         if (!user.equals(username))
             throw new RuntimeException("User DATA can't be modified by another user");
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.OPERATOR.name());
@@ -89,7 +95,7 @@ public class OperatorController {
 
     @DeleteMapping("/operator")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void deleteOperator(@RequestParam String username) throws UserNotFoundException {
+    public void deleteOperator(@RequestParam String username) throws NotFoundException {
         userService.deleteUser(username,UserRoles.OPERATOR.name());
     }
 }

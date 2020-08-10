@@ -1,4 +1,4 @@
-package project.EE.dto;
+package project.EE.dto.password;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

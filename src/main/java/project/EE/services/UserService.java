@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import project.EE.dto.UserDTO;
-import project.EE.dto.UserDTOToUserConverter;
-import project.EE.dto.UserToUserDTOConverter;
-import project.EE.exceptions.UserNotFoundException;
+import project.EE.dto.user.UserDTO;
+import project.EE.dto.user.UserDTOToUserConverter;
+import project.EE.dto.user.UserToUserDTOConverter;
+import project.EE.exceptions.NotFoundException;
 import project.EE.models.PasswordResetToken;
 import project.EE.models.User;
 import project.EE.repositories.UserRepository;
@@ -53,7 +53,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserDTO updateUserRole (String username, UserDTO userDTO) throws UserNotFoundException {
+    public UserDTO updateUserRole (String username, UserDTO userDTO) throws NotFoundException {
         User toUpdate = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
 
@@ -71,7 +71,7 @@ public class UserService {
         return savedDto;
     }
 
-    public void deleteUser(String username, String role) throws UserNotFoundException {
+    public void deleteUser(String username, String role) throws NotFoundException {
         User toDelete = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username "+username +"not found"));
         if (!toDelete.getRole().equals(role))
@@ -80,11 +80,11 @@ public class UserService {
         log.info("User "+username+" deleted");
     }
 
-    public UserDTO updateUser(String username, UserDTO userDTO, String role) throws UserNotFoundException {
+    public UserDTO updateUser(String username, UserDTO userDTO, String role) throws NotFoundException {
         User toUpdate = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
         if (!toUpdate.getRole().equals(role))
-            throw new UserNotFoundException("Can't find Username "+username+" with role"+role);
+            throw new NotFoundException("Can't find Username "+username+" with role"+role);
         if(userDTO.getUsername()!=null)
             throw new RuntimeException("Username is unique. You can't change it.");
         if(userDTO.getName()!=null)
@@ -115,10 +115,10 @@ public class UserService {
     }
 
 
-    public UserDTO getUserByEmail(String email) throws UserNotFoundException {
+    public UserDTO getUserByEmail(String email) throws NotFoundException {
         UserDTO dto = userRepository.findByEmail(email)
                 .map(user -> toUserDTOConverter.convert(user))
-                .orElseThrow(() -> new UserNotFoundException("Can't find user with email "+email));
+                .orElseThrow(() -> new NotFoundException("Can't find user with email "+email));
         return dto;
     }
 
@@ -129,9 +129,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserDTO userPasswordReset(String email, String password) throws UserNotFoundException {
+    public UserDTO userPasswordReset(String email, String password) throws NotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new UserNotFoundException("Email "+email+"not found"));
+                .orElseThrow(()-> new NotFoundException("Email "+email+"not found"));
         user.setPassword(passwordEncoder.encode(password));
         User saved = userRepository.save(user);
         UserDTO savedDto = toUserDTOConverter.convert(saved);

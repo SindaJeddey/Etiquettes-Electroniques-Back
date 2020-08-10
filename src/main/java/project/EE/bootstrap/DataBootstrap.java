@@ -3,24 +3,50 @@ package project.EE.bootstrap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import project.EE.models.Product;
 import project.EE.models.User;
 import project.EE.models.UserRoles;
+import project.EE.services.ProductService;
 import project.EE.services.UserService;
+
+import java.time.LocalDate;
 
 @Component
 @Slf4j
 public class DataBootstrap implements CommandLineRunner {
 
     private final UserService userService;
+    private final ProductService productService;
 
-    public DataBootstrap(UserService userService) {
+    public DataBootstrap(UserService userService,
+                         ProductService productService) {
         this.userService = userService;
+        this.productService = productService;
     }
 
 
     @Override
     public void run(String... args) throws Exception {
        loadUsers();
+       loadProducts();
+    }
+
+    private void loadProducts() {
+        Product product1 = Product.builder()
+                .name("Product 1")
+                .quantity(300L)
+                .addedDate(LocalDate.now())
+                .build();
+        productService.saveProduct(product1);
+
+        Product product2 = Product.builder()
+                .name("Product 2")
+                .quantity(100L)
+                .addedDate(LocalDate.now())
+                .build();
+        productService.saveProduct(product2);
+
+        log.info("Loading products ...");
     }
 
     private void loadUsers() {

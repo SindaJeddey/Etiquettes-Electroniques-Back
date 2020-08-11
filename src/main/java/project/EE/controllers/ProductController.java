@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@PreAuthorize("permitAll()")
+@PreAuthorize("hasAuthority('ROLE_OPERATOR')")
 public class ProductController {
 
     private final ProductService productService;

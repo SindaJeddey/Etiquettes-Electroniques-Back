@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import project.EE.models.Product;
+import project.EE.dto.product.ProductDTO;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +17,6 @@ public class CategoryDTO {
 
     private Long id;
     private String name;
-    private Set<Product> productSet = new HashSet<>();
+    private Set<ProductDTO> productSet = new HashSet<>();
 
 }

@@ -1,15 +1,19 @@
 package project.EE.bootstrap;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import project.EE.models.Category;
 import project.EE.models.Product;
 import project.EE.models.User;
 import project.EE.models.UserRoles;
+import project.EE.services.CategoryService;
 import project.EE.services.ProductService;
 import project.EE.services.UserService;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -17,11 +21,14 @@ public class DataBootstrap implements CommandLineRunner {
 
     private final UserService userService;
     private final ProductService productService;
+    private final CategoryService categoryService;
 
     public DataBootstrap(UserService userService,
-                         ProductService productService) {
+                         ProductService productService,
+                         CategoryService categoryService) {
         this.userService = userService;
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
 
@@ -37,14 +44,31 @@ public class DataBootstrap implements CommandLineRunner {
                 .quantity(300L)
                 .addedDate(LocalDate.now())
                 .build();
-        productService.saveProduct(product1);
 
         Product product2 = Product.builder()
                 .name("Product 2")
                 .quantity(100L)
                 .addedDate(LocalDate.now())
                 .build();
+
+        Set<Product> products = Sets.newHashSet(product1,product2);
+
+        Category cat1 = Category.builder()
+                .name("Cat 1")
+                .build();
+
+        cat1.setProductSet(products);
+        categoryService.saveCategory(cat1);
+
+        product1.setCategory(cat1);
+        productService.saveProduct(product1);
+        product2.setCategory(cat1);
         productService.saveProduct(product2);
+
+        Category cat2 = Category.builder()
+                .name("Cat 2")
+                .build();
+        categoryService.saveCategory(cat2);
 
         log.info("Loading products ...");
     }

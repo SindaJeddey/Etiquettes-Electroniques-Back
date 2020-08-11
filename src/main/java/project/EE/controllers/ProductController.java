@@ -26,8 +26,14 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/{id}")
+    ProductDTO getProduct(@PathVariable Long id) throws NotFoundException {
+        return productService.getProduct(id);
+    }
+
     @PostMapping("/new")
-    public ProductDTO addProduct(@RequestBody ProductDTO productDTO){
+    public ProductDTO addProduct(@RequestBody ProductDTO productDTO)
+            throws NotFoundException {
         if (productDTO == null)
             throw new IllegalArgumentException("Must provide a product to save");
         return productService.save(productDTO);

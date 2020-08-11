@@ -19,6 +19,6 @@ public class Category {
     private Long id;
     private String name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "category")
     private Set<Product> productSet = new HashSet<>();
 }

@@ -1,5 +1,6 @@
 package project.EE.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.EE.dto.category.CategoryDTO;
 import project.EE.exceptions.NotFoundException;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@PreAuthorize("permitAll()")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -20,6 +22,11 @@ public class CategoryController {
     @GetMapping
     List<CategoryDTO> getAllCategories(){
         return categoryService.getAllCategories();
+    }
+
+    @GetMapping("/{id}")
+    CategoryDTO getCategory(@PathVariable Long id) throws NotFoundException {
+        return categoryService.getCategory(id);
     }
 
     @PostMapping("/new")

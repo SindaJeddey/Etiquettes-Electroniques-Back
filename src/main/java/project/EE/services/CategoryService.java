@@ -44,6 +44,13 @@ public class CategoryService {
         return dtos;
     }
 
+    public CategoryDTO getCategory(Long id) throws NotFoundException {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
+        CategoryDTO dto = toCategoryDTOConverter.convert(category);
+        return dto;
+    }
+
     public void deleteCategory(Long id) throws NotFoundException {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));

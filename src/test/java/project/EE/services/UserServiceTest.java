@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.User;
-import project.EE.models.UserRoles;
+import project.EE.models.authentication.User;
+import project.EE.models.authentication.UserRoles;
 import project.EE.repositories.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,7 +50,7 @@ class UserServiceTest {
     @Test
     void deleteUser() throws NotFoundException {
         when(userRepository.findByUsername(anyString())).thenReturn(java.util.Optional.ofNullable(user));
-        userService.deleteUser("ha",UserRoles.ADMIN.name());
+        userService.deleteUser(1L,UserRoles.ADMIN.name());
         verify(userRepository,times(1)).delete(any(User.class));
     }
 }

@@ -10,8 +10,7 @@ import project.EE.dto.product.ProductDTO;
 import project.EE.dto.product.ProductDTOToProductConverter;
 import project.EE.dto.product.ProductToProductDTOConverter;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.Product;
-import project.EE.models.User;
+import project.EE.models.models.Product;
 import project.EE.repositories.ProductRepository;
 
 import java.util.ArrayList;

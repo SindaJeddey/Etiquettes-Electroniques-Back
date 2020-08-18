@@ -1,6 +1,7 @@
-package project.EE.models;
+package project.EE.models.authentication;
 
 import lombok.*;
+import project.EE.models.authentication.PasswordResetToken;
 
 import javax.persistence.*;
 import java.time.LocalDate;

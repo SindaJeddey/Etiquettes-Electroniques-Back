@@ -1,4 +1,4 @@
-package project.EE.models;
+package project.EE.models.authentication;
 
 import com.google.common.collect.Sets;
 import org.springframework.security.core.GrantedAuthority;

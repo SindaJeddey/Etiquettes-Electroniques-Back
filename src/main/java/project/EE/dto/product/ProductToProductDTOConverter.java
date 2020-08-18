@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import org.springframework.stereotype.Component;
-import project.EE.models.Product;
+import project.EE.models.models.Product;
 
 @Component
 public class ProductToProductDTOConverter implements Converter<Product, ProductDTO> {

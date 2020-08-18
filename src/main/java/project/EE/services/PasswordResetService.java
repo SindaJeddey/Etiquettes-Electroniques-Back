@@ -1,8 +1,8 @@
 package project.EE.services;
 
 import org.springframework.stereotype.Service;
-import project.EE.models.PasswordResetToken;
-import project.EE.models.User;
+import project.EE.models.authentication.PasswordResetToken;
+import project.EE.models.authentication.User;
 import project.EE.repositories.PasswordResetTokenRepository;
 import project.EE.repositories.UserRepository;
 

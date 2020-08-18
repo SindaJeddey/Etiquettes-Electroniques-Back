@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import project.EE.dto.password.PasswordDTO;
 import project.EE.dto.user.UserDTO;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.NotificationEmail;
+import project.EE.models.notificationEmail.NotificationEmail;
 import project.EE.services.MailSendingService;
 import project.EE.services.PasswordResetService;
 import project.EE.services.UserService;

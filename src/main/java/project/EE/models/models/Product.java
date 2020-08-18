@@ -1,9 +1,10 @@
-package project.EE.models;
+package project.EE.models.models;
 
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,5 +23,8 @@ public class Product {
 
     @ManyToOne
     private Category category;
+
+    @ManyToMany(mappedBy = "products")
+    private Set<Store> stores = new HashSet<>();
 
 }

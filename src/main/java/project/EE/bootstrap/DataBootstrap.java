@@ -4,15 +4,18 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import project.EE.models.Category;
-import project.EE.models.Product;
-import project.EE.models.User;
-import project.EE.models.UserRoles;
+import project.EE.models.models.Category;
+import project.EE.models.models.Product;
+import project.EE.models.authentication.User;
+import project.EE.models.authentication.UserRoles;
+import project.EE.models.models.Store;
 import project.EE.services.CategoryService;
 import project.EE.services.ProductService;
+import project.EE.services.StoreService;
 import project.EE.services.UserService;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Component
@@ -22,13 +25,16 @@ public class DataBootstrap implements CommandLineRunner {
     private final UserService userService;
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final StoreService storeService;
 
     public DataBootstrap(UserService userService,
                          ProductService productService,
-                         CategoryService categoryService) {
+                         CategoryService categoryService,
+                         StoreService storeService) {
         this.userService = userService;
         this.productService = productService;
         this.categoryService = categoryService;
+        this.storeService = storeService;
     }
 
 
@@ -37,6 +43,7 @@ public class DataBootstrap implements CommandLineRunner {
        loadUsers();
        loadProductsAndCategories();
     }
+
 
     private void loadProductsAndCategories() {
         Product product1 = Product.builder()
@@ -70,7 +77,39 @@ public class DataBootstrap implements CommandLineRunner {
                 .build();
         categoryService.saveCategory(cat2);
 
+        Store store1 = Store.builder()
+                .name("Store 1")
+                .location("aouina")
+                .zipCode("2045")
+                .categories(Sets.newHashSet(cat1,cat2))
+                .products(products)
+                .build();
+        storeService.save(store1);
+
+        Set<Store> stores = new HashSet<>();
+        stores.add(store1);
+        cat1.setStores(stores);
+        categoryService.saveCategory(cat1);
+        cat2.setStores(stores);
+        categoryService.saveCategory(cat2);
+
+        log.info("Loading categories ...");
+
+        product1.setStores(stores);
+        product2.setStores(stores);
+        productService.saveProduct(product1);
+        productService.saveProduct(product2);
+
         log.info("Loading products ...");
+
+        Store store2 = Store.builder()
+                .name("Store 2")
+                .location("lac")
+                .zipCode("2044")
+                .build();
+        storeService.save(store2);
+
+        log.info("Loading stores ...");
     }
 
     private void loadUsers() {
@@ -99,6 +138,5 @@ public class DataBootstrap implements CommandLineRunner {
         userService.saveUser(superOperator);
 
         log.info("Users loaded in database ...");
-
     }
 }

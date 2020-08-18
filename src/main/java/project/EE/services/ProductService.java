@@ -6,11 +6,14 @@ import project.EE.dto.product.ProductDTO;
 import project.EE.dto.product.ProductDTOToProductConverter;
 import project.EE.dto.product.ProductToProductDTOConverter;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.Category;
-import project.EE.models.Product;
+import project.EE.models.models.Category;
+import project.EE.models.models.Product;
+import project.EE.models.models.Store;
 import project.EE.repositories.CategoryRepository;
 import project.EE.repositories.ProductRepository;
+import project.EE.repositories.StoreRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,15 +24,18 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final StoreRepository storeRepository;
     private final ProductDTOToProductConverter toProductConverter;
     private final ProductToProductDTOConverter toProductDTOConverter;
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
+                          StoreRepository storeRepository,
                           ProductDTOToProductConverter toProductConverter,
                           ProductToProductDTOConverter toProductDTOConverter) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.storeRepository = storeRepository;
         this.toProductConverter = toProductConverter;
         this.toProductDTOConverter = toProductDTOConverter;
     }
@@ -59,6 +65,7 @@ public class ProductService {
         Category category = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category with id: "+productDTO.getCategoryId()+" not found"));
         toSave.setCategory(category);
+        toSave.setAddedDate(LocalDate.now());
         Product saved = productRepository.save(toSave);
         Set<Product> products = category.getProductSet();
         products.add(saved);
@@ -93,12 +100,24 @@ public class ProductService {
     public void deleteProduct(Long id) throws NotFoundException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product with id: "+id+" not found"));
+
+        //Deleting product from all the stores
+        Set<Store> stores = product.getStores();
+        stores.forEach(store -> {
+            Set<Product> products = store.getProducts();
+            products.remove(product);
+            store.setProducts(products);
+            storeRepository.save(store);
+        });
+
+        //Deleting the product from its category
         Category category = product.getCategory();
-        Set<Product> products = category.getProductSet();
-        products.remove(product);
-        category.setProductSet(products);
-        System.out.println(category.getProductSet());;
+        Set<Product> categoryProduct = category.getProductSet();
+        categoryProduct.remove(product);
+        category.setProductSet(categoryProduct);
         categoryRepository.save(category);
+
+        //Deleting the product
         productRepository.delete(product);
     }
 }

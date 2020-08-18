@@ -40,4 +40,20 @@ public class CategoryController {
     public void deleteCategory(@PathVariable Long id) throws NotFoundException {
         categoryService.deleteCategory(id);
     }
+
+
+    @GetMapping("/{id}/{choice}")
+    public CategoryDTO getChoices(@PathVariable Long id,
+                                   @PathVariable String choice) throws NotFoundException {
+        switch (choice){
+            case "stores":{
+                return categoryService.getStores(id);
+            }
+            case "products":{
+                return categoryService.getProducts(id);
+            }
+            default:
+                throw new RuntimeException("Choice invalid");
+        }
+    }
 }

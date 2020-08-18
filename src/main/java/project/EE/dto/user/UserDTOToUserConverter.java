@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import org.springframework.stereotype.Component;
-import project.EE.models.User;
+import project.EE.models.authentication.User;
 
 @Component
 public class UserDTOToUserConverter implements Converter<UserDTO, User> {

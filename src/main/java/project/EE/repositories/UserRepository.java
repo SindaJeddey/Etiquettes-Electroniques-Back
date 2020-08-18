@@ -1,7 +1,7 @@
 package project.EE.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import project.EE.models.User;
+import project.EE.models.authentication.User;
 
 import java.util.List;
 import java.util.Optional;

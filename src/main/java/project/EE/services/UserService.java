@@ -8,11 +8,12 @@ import project.EE.dto.user.UserDTO;
 import project.EE.dto.user.UserDTOToUserConverter;
 import project.EE.dto.user.UserToUserDTOConverter;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.PasswordResetToken;
-import project.EE.models.User;
+import project.EE.models.authentication.PasswordResetToken;
+import project.EE.models.authentication.User;
 import project.EE.repositories.UserRepository;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +41,7 @@ public class UserService {
     public UserDTO saveNewUser(UserDTO userDTO, String role){
         User toSave = toUserConverter.convert(userDTO);
         toSave.setRole(role);
-        String password = toSave.getPassword();
+        String password = UUID.randomUUID().toString();
         toSave.setPassword(passwordEncoder.encode(password));
         User saved = userRepository.save(toSave);
         UserDTO savedDto = toUserDTOConverter.convert(saved);
@@ -71,13 +72,13 @@ public class UserService {
         return savedDto;
     }
 
-    public void deleteUser(String username, String role) throws NotFoundException {
-        User toDelete = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username "+username +"not found"));
+    public void deleteUser(Long id, String role) throws NotFoundException {
+        User toDelete = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Username "+id +"not found"));
         if (!toDelete.getRole().equals(role))
-            throw new UsernameNotFoundException("Incompatible username "+username+" with role "+role);
+            throw new UsernameNotFoundException("Incompatible id "+id+" with role "+role);
         userRepository.delete(toDelete);
-        log.info("User "+username+" deleted");
+        log.info("User "+id+" deleted");
     }
 
     public UserDTO updateUser(String username, UserDTO userDTO, String role) throws NotFoundException {

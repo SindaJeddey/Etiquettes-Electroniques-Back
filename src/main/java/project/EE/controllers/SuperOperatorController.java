@@ -4,13 +4,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.EE.dto.user.UserDTO;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.NotificationEmail;
-import project.EE.models.UserRoles;
+import project.EE.models.notificationEmail.NotificationEmail;
+import project.EE.models.authentication.UserRoles;
 import project.EE.services.MailSendingService;
 import project.EE.services.UserService;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/superops")
+@RequestMapping("/api/super-operators")
 public class SuperOperatorController {
 
     private final UserService userService;
@@ -21,6 +23,12 @@ public class SuperOperatorController {
                                    MailSendingService mailSendingService) {
         this.userService = userService;
         this.mailSendingService = mailSendingService;
+    }
+
+    @GetMapping
+    @PreAuthorize("permitAll()")
+    public List<UserDTO> getAllSuperOperators (){
+        return userService.getAllUsers(UserRoles.SUPER_OPERATOR.name());
     }
 
     @PostMapping("/new")
@@ -84,10 +92,10 @@ public class SuperOperatorController {
         return dto;
     }
 
-    @DeleteMapping("/superoperator")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void deleteSuperOperator(@RequestParam String username) throws NotFoundException {
-        userService.deleteUser(username,UserRoles.SUPER_OPERATOR.name());
+    public void deleteSuperOperator(@PathVariable Long id) throws NotFoundException {
+        userService.deleteUser(id,UserRoles.SUPER_OPERATOR.name());
     }
 
 }

@@ -1,4 +1,4 @@
-package project.EE.models;
+package project.EE.models.authentication;
 
 import lombok.Getter;
 import lombok.Setter;

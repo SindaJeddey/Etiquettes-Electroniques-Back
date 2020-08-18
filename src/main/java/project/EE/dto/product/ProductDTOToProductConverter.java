@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.util.Converter;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.Category;
-import project.EE.models.Product;
+import project.EE.models.models.Category;
+import project.EE.models.models.Product;
 import project.EE.repositories.CategoryRepository;
 
 

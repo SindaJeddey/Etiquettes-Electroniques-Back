@@ -5,14 +5,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.EE.dto.product.ProductDTO;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.Product;
 import project.EE.services.ProductService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@PreAuthorize("hasAuthority('ROLE_OPERATOR')")
+@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
 public class ProductController {
 
     private final ProductService productService;

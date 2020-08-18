@@ -1,4 +1,4 @@
-package project.EE.models;
+package project.EE.models.models;
 
 import lombok.*;
 
@@ -19,6 +19,10 @@ public class Category {
     private Long id;
     private String name;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private Set<Product> productSet = new HashSet<>();
+
+    @ManyToMany(mappedBy = "categories")
+    private Set<Store> stores = new HashSet<>();
+
 }

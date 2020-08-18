@@ -1,4 +1,4 @@
-package project.EE.models;
+package project.EE.models.notificationEmail;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

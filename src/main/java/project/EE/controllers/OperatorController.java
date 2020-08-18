@@ -5,8 +5,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.EE.dto.user.UserDTO;
 import project.EE.exceptions.NotFoundException;
-import project.EE.models.NotificationEmail;
-import project.EE.models.UserRoles;
+import project.EE.models.notificationEmail.NotificationEmail;
+import project.EE.models.authentication.UserRoles;
 import project.EE.services.MailSendingService;
 import project.EE.services.UserService;
 
@@ -27,7 +27,7 @@ public class OperatorController {
     }
 
     @GetMapping
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserDTO> getAllOperators (){
         return userService.getAllUsers(UserRoles.OPERATOR.name());
     }
@@ -93,9 +93,9 @@ public class OperatorController {
         return dto;
     }
 
-    @DeleteMapping("/operator")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void deleteOperator(@RequestParam String username) throws NotFoundException {
-        userService.deleteUser(username,UserRoles.OPERATOR.name());
+    public void deleteOperator(@PathVariable Long id) throws NotFoundException {
+        userService.deleteUser(id,UserRoles.OPERATOR.name());
     }
 }

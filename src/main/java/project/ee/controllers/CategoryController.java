@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@PreAuthorize("hasAuthority('ROLE_OPERATOR')")
+@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -36,11 +36,14 @@ public class CategoryController {
         return categoryService.save(categoryDTO);
     }
 
+    @PutMapping("/{id}")
+    public CategoryDTO updateCategory (@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) throws NotFoundException {
+        return categoryService.updateCategory(id,categoryDTO);
+    }
     @DeleteMapping("/{id}")
     public void deleteCategory(@PathVariable Long id) throws NotFoundException {
         categoryService.deleteCategory(id);
     }
-
 
     @GetMapping("/{id}/{choice}")
     public CategoryDTO getChoices(@PathVariable Long id,

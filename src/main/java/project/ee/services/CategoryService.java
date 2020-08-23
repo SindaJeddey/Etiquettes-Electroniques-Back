@@ -110,4 +110,15 @@ public class CategoryService {
 
         return categoryDTO;
     }
+
+    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) throws NotFoundException {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
+        Category updates = toCategoryConverter.convert(categoryDTO);
+        if(updates.getName() != null)
+            category.setName(updates.getName());
+        Category saved = categoryRepository.save(category);
+        return toCategoryDTOConverter.convert(saved);
+
+    }
 }

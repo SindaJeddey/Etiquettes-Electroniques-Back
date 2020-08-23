@@ -54,9 +54,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserDTO updateUserRole (String username, UserDTO userDTO) throws NotFoundException {
-        User toUpdate = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
+    public UserDTO updateUserRole (Long id, UserDTO userDTO) throws NotFoundException {
+        User toUpdate = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User Id "+id+" not found"));
 
         UserDTO savedDto;
         if (toUpdate.getRole().equals(userDTO.getRole())){
@@ -74,18 +74,18 @@ public class UserService {
 
     public void deleteUser(Long id, String role) throws NotFoundException {
         User toDelete = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Username "+id +"not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User"+id +"not found"));
         if (!toDelete.getRole().equals(role))
             throw new UsernameNotFoundException("Incompatible id "+id+" with role "+role);
         userRepository.delete(toDelete);
         log.info("User "+id+" deleted");
     }
 
-    public UserDTO updateUser(String username, UserDTO userDTO, String role) throws NotFoundException {
-        User toUpdate = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
+    public UserDTO updateUser(Long id, UserDTO userDTO, String role) throws NotFoundException {
+        User toUpdate = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User id "+id+" not found"));
         if (!toUpdate.getRole().equals(role))
-            throw new NotFoundException("Can't find Username "+username+" with role"+role);
+            throw new NotFoundException("Can't find User id "+id+" with role"+role);
         if(userDTO.getUsername()!=null)
             throw new RuntimeException("Username is unique. You can't change it.");
         if(userDTO.getName()!=null)
@@ -139,4 +139,11 @@ public class UserService {
         return savedDto;
     }
 
+    public UserDTO getUser(Long id, String role) throws NotFoundException {
+        return userRepository.findById(id)
+                .filter(user -> user.getRole().equals(role))
+                .map(user -> toUserDTOConverter.convert(user))
+                .orElseThrow(()-> new NotFoundException("User id "+id+"not found"));
+
+    }
 }

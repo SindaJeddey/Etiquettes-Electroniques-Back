@@ -1,9 +1,12 @@
 package project.ee.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.ee.dto.category.CategoryDTO;
+import project.ee.dto.category.CategoryDTOToCategoryConverter;
 import project.ee.dto.category.CategoryToCategoryDTOConverter;
 import project.ee.dto.product.ProductDTO;
+import project.ee.dto.product.ProductDTOToProductConverter;
 import project.ee.dto.product.ProductToProductDTOConverter;
 import project.ee.dto.store.StoreDTO;
 import project.ee.dto.store.StoreDTOToStoreConverter;
@@ -31,8 +34,9 @@ public class StoreService {
     private final StoreDTOToStoreConverter toStoreConverter;
     private final StoreToStoreDTOConverter toStoreDTOConverter;
     private final CategoryToCategoryDTOConverter toCategoryDTOConverter;
+    private final CategoryDTOToCategoryConverter toCategoryConverter;
     private final ProductToProductDTOConverter toProductDTOConverter;
-
+    private final ProductDTOToProductConverter toProductConverter;
 
     public StoreService(StoreRepository storeRepository,
                         CategoryRepository categoryRepository,
@@ -40,14 +44,23 @@ public class StoreService {
                         StoreDTOToStoreConverter toStoreConverter,
                         StoreToStoreDTOConverter toStoreDTOConverter,
                         CategoryToCategoryDTOConverter toCategoryDTOConverter,
-                        ProductToProductDTOConverter toProductDTOConverter) {
+                        CategoryDTOToCategoryConverter toCategoryConverter,
+                        ProductToProductDTOConverter toProductDTOConverter,
+                        ProductDTOToProductConverter toProductConverter) {
         this.storeRepository = storeRepository;
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.toStoreConverter = toStoreConverter;
         this.toStoreDTOConverter = toStoreDTOConverter;
         this.toCategoryDTOConverter = toCategoryDTOConverter;
+        this.toCategoryConverter = toCategoryConverter;
         this.toProductDTOConverter = toProductDTOConverter;
+        this.toProductConverter = toProductConverter;
+    }
+
+    private Store fetchStore(Long id) throws NotFoundException {
+        return storeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Store id: " + id + " not found"));
     }
 
     public Store save(Store store){
@@ -55,18 +68,15 @@ public class StoreService {
     }
 
     public List<StoreDTO> getAllStores(){
-        List<StoreDTO> dtos = storeRepository.findAll()
+        return storeRepository.findAll()
                 .stream()
                 .map(store -> toStoreDTOConverter.convert(store))
                 .collect(Collectors.toList());
-        return dtos;
     }
 
     public StoreDTO getStore(Long id) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
-        StoreDTO dto = toStoreDTOConverter.convert(store);
-        return dto;
+        Store store = fetchStore(id);
+        return toStoreDTOConverter.convert(store);
     }
 
     public StoreDTO addStore(StoreDTO storeDTO) {
@@ -77,8 +87,7 @@ public class StoreService {
     }
 
     public void deleteStore(Long id) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+        Store store = fetchStore(id);
 
         //Deleting store from product
         Set<Product> products = store.getProducts();
@@ -101,56 +110,89 @@ public class StoreService {
     }
 
 
-    public StoreDTO addCategory(Long id, Long choiceId) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+    public StoreDTO updateStore(Long id, StoreDTO storeDTO) throws NotFoundException {
+        Store store = fetchStore(id);
+        if(storeDTO.getName() != null)
+            store.setName(storeDTO.getName());
+        if(storeDTO.getLocation() != null)
+            store.setLocation(storeDTO.getLocation());
+        if(storeDTO.getZipCode() != null)
+            store.setZipCode(storeDTO.getZipCode());
+        if(storeDTO.getCategories() != null) {
+            //to refactor to optimize
+            store.setCategories(new HashSet<>());
+            Set<Category> cats = storeDTO.getCategories()
+                    .stream()
+                    .map(categoryDTO -> toCategoryConverter.convert(categoryDTO))
+                    .collect(Collectors.toSet());
+            cats.forEach(category -> {
+                        try {
+                            addCategory(store, category.getId());
+                        } catch (NotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    });
+            store.setCategories(cats);
+        }
 
-        Category category = categoryRepository.findById(choiceId)
-                .orElseThrow(() -> new NotFoundException("Category id: "+choiceId+" not found"));
-
-        Set<Category> categories = store.getCategories();
-        categories.add(category);
-        store.setCategories(categories);
+        if(storeDTO.getProducts() != null) {
+            //to refactor to optimize
+            storeDTO.getProducts()
+                    .stream()
+                    .map(productDTO -> toProductConverter.convert(productDTO))
+                    .forEach(product -> {
+                        try {
+                            addProduct(store,product.getId());
+                        } catch (NotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        }
         Store saved = storeRepository.save(store);
-
-        Set<Store> stores = category.getStores();
-        stores.add(saved);
-        category.setStores(stores);
-        categoryRepository.save(category);
-
-        StoreDTO savedDTO = toStoreDTOConverter.convert(saved);
-        return savedDTO;
+        return toStoreDTOConverter.convert(saved);
     }
 
-    public StoreDTO addProduct(Long id, Long choiceId) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+    private void addCategory(Store store, Long choiceId) throws NotFoundException {
+        Category category = categoryRepository.findById(choiceId)
+                .orElseThrow(() -> new NotFoundException("Category id: "+choiceId+" not found"));
+        Set<Category> categories = store.getCategories();
+        if(!categories.contains(category)) {
+            categories.add(category);
+            store.setCategories(categories);
+            Store saved = storeRepository.save(store);
 
+            Set<Store> stores = category.getStores();
+            stores.add(saved);
+            category.setStores(stores);
+            categoryRepository.save(category);
+        }
+    }
+
+
+    private void addProduct(Store store, Long choiceId) throws NotFoundException {
         Product product = productRepository.findById(choiceId)
                 .orElseThrow(() -> new NotFoundException("Product id: "+choiceId+" not found"));
 
         Category category = product.getCategory();
         boolean categoryExists = store.getCategories().stream().anyMatch(category1 -> category1.equals(category));
         if(!categoryExists)
-            throw new RuntimeException("Store "+id+" doesn't have category "+category.getId()+". Can't add product");
+            throw new RuntimeException("Store "+store.getId()+" doesn't have category "+category.getId()+". Can't add product");
 
         Set<Product> products = store.getProducts();
-        products.add(product);
-        store.setProducts(products);
-        Store saved = storeRepository.save(store);
+        if(!products.contains(product)) {
+            products.add(product);
+            store.setProducts(products);
+            Store saved = storeRepository.save(store);
 
-        Set<Store> stores =product.getStores();
-        stores.add(saved);
-        product.setStores(stores);
-        productRepository.save(product);
-
-        StoreDTO savedDTO = toStoreDTOConverter.convert(saved);
-        return savedDTO;
+            Set<Store> stores = product.getStores();
+            stores.add(saved);
+            product.setStores(stores);
+            productRepository.save(product);
+        }
     }
 
     public StoreDTO removeCategory(Long id, Long categoryId) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+        Store store = fetchStore(id);
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category id: "+categoryId+" not found"));
@@ -188,8 +230,7 @@ public class StoreService {
     }
 
     public StoreDTO removeProduct(Long id, Long productId) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+        Store store = fetchStore(id);
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product id: "+productId+" not found"));
@@ -215,8 +256,7 @@ public class StoreService {
     }
 
     public StoreDTO fetchCategories(Long id) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+        Store store = fetchStore(id);
 
         Set<CategoryDTO> categoryDTOS = store.getCategories()
                 .stream()
@@ -230,8 +270,7 @@ public class StoreService {
     }
 
     public StoreDTO fetchProducts(Long id) throws NotFoundException {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Store id: "+id+" not found"));
+        Store store = fetchStore(id);
 
         Set<ProductDTO> productDTOS = store.getProducts()
                 .stream()

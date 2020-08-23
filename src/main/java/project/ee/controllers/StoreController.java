@@ -42,34 +42,10 @@ public class StoreController {
         storeService.deleteStore(id);
     }
 
-    @PutMapping("/{id}/{choice}/{choiceId}/{operation}")
-    public StoreDTO updateStore(@PathVariable Long id,
-                                @PathVariable String choice,
-                                @PathVariable Long choiceId,
-                                @PathVariable String operation)
+    @PutMapping("/{id}")
+    public StoreDTO updateStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO)
             throws NotFoundException {
-        switch (choice){
-            case "categories": {
-                if(operation.equals("add"))
-                    return storeService.addCategory(id,choiceId);
-                else if(operation.equals("delete"))
-                    return storeService.removeCategory(id,choiceId);
-                else
-                    throw new RuntimeException("Operation invalid");
-            }
-
-            case "products": {
-                if(operation.equals("add"))
-                    return storeService.addProduct(id,choiceId);
-                else if(operation.equals("delete"))
-                    return storeService.removeProduct(id,choiceId);
-                else
-                    throw new RuntimeException("Operation invalid");
-            }
-
-            default:
-                throw new RuntimeException("Choice invalid");
-        }
+        return storeService.updateStore(id,storeDTO);
     }
 
     @GetMapping("/{id}/{choice}")

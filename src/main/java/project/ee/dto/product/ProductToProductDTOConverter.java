@@ -17,6 +17,19 @@ public class ProductToProductDTOConverter implements Converter<Product, ProductD
         dto.setName(product.getName());
         dto.setQuantity(product.getQuantity());
         dto.setCategoryId(product.getCategory().getId());
+        dto.setQuantityThreshold(product.getQuantityThreshold());
+        dto.setAddedDate(product.getAddedDate());
+        dto.setLastModificationDate(product.getLastModificationDate());
+        dto.setUnity(product.getUnity());
+        dto.setDevise(product.getDevise());
+        dto.setPromotion(product.getPromotion());
+        dto.setPromotionType(product.getPromotionType());
+        dto.setLongDescription(product.getLongDescription());
+        dto.setShortDescription(product.getShortDescription());
+        dto.setProductCode(product.getProductCode());
+        dto.setImage1(product.getImage1());
+        dto.setImage2(product.getImage2());
+        dto.setImage3(product.getImage3());
         return dto;
     }
 

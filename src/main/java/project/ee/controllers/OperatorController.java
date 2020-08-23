@@ -32,6 +32,12 @@ public class OperatorController {
         return userService.getAllUsers(UserRoles.OPERATOR.name());
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public UserDTO getOperator(@PathVariable Long id) throws NotFoundException {
+        return userService.getUser(id, UserRoles.OPERATOR.name());
+    }
+
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newOperator(@RequestBody UserDTO dto){
@@ -49,13 +55,13 @@ public class OperatorController {
         return savedDto;
     }
 
-    @PutMapping("/operator")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public UserDTO updateOperatorRole (@RequestParam String username, @RequestBody UserDTO userDTO )
+    public UserDTO updateOperatorRole (@PathVariable Long id, @RequestBody UserDTO userDTO )
             throws NotFoundException {
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to save");
-        UserDTO updatedDto = userService.updateUserRole(username,userDTO);
+        UserDTO updatedDto = userService.updateUserRole(id,userDTO);
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
                 updatedDto.getEmail(),
@@ -67,16 +73,16 @@ public class OperatorController {
         return updatedDto;
     }
 
-    @PutMapping("/operator/update")
+    @PutMapping("/operator/update/{id}")
     @PreAuthorize("hasAuthority('ROLE_OPERATOR')")
     public UserDTO updateOperator(@RequestAttribute String user,
-                                  @RequestParam String username,
+                                  @PathVariable Long id,
                                   @RequestBody UserDTO userDTO) throws NotFoundException {
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to save");
-        if (!user.equals(username))
-            throw new RuntimeException("User DATA can't be modified by another user");
-        UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.OPERATOR.name());
+//        if (!user.equals(username))
+//            throw new RuntimeException("User DATA can't be modified by another user");
+        UserDTO dto =  userService.updateUser(id,userDTO,UserRoles.OPERATOR.name());
         NotificationEmail account_modification = new NotificationEmail(
                 "Account Modification",
                 dto.getEmail(),

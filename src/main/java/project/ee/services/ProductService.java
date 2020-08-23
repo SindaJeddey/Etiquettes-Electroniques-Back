@@ -94,6 +94,16 @@ public class ProductService {
             category.setProductSet(products);
             categoryRepository.save(category);
         }
+        if(updates.getLongDescription() != null)
+            productToUpdate.setLongDescription(updates.getLongDescription());
+        if(updates.getShortDescription() != null)
+            productToUpdate.setShortDescription(updates.getShortDescription());
+        if(updates.getUnity() != null)
+            productToUpdate.setUnity(updates.getUnity());
+        if(updates.getDevise() != null)
+            productToUpdate.setDevise(updates.getDevise());
+        if(updates.getQuantityThreshold() != null)
+            productToUpdate.setQuantityThreshold(updates.getQuantityThreshold());
         productToUpdate.setLastModificationDate(LocalDate.now());
         Product saved = productRepository.save(productToUpdate);
         updatedDto = toProductDTOConverter.convert(saved);

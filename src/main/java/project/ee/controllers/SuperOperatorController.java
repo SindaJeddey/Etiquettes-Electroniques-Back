@@ -31,6 +31,11 @@ public class SuperOperatorController {
         return userService.getAllUsers(UserRoles.SUPER_OPERATOR.name());
     }
 
+    @GetMapping("/{id}")
+    public UserDTO getSuperOperator(@PathVariable Long id) throws NotFoundException {
+        return userService.getUser(id, UserRoles.SUPER_OPERATOR.name());
+    }
+
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newSuperOperator(@RequestBody UserDTO dto){
@@ -48,13 +53,13 @@ public class SuperOperatorController {
         return savedDto;
     }
 
-    @PutMapping("/superoperator")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public UserDTO updateSuperOperatorRole (@RequestParam String username, @RequestBody UserDTO userDTO )
+    public UserDTO updateSuperOperatorRole (@PathVariable Long id, @RequestBody UserDTO userDTO )
             throws NotFoundException {
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to update");
-        UserDTO updatedDto = userService.updateUserRole(username,userDTO);
+        UserDTO updatedDto = userService.updateUserRole(id,userDTO);
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
                 updatedDto.getEmail(),
@@ -66,16 +71,16 @@ public class SuperOperatorController {
         return updatedDto;
     }
 
-    @PutMapping("/superoperator/update")
+    @PutMapping("/{id}/update")
     @PreAuthorize("hasAuthority('ROLE_SUPER_OPERATOR')")
     public UserDTO updateOperator(@RequestAttribute String user,
-                                  @RequestParam String username,
+                                  @PathVariable Long id,
                                   @RequestBody UserDTO userDTO) throws NotFoundException {
-        if (!user.equals(username))
-            throw new RuntimeException("User DATA can't be modified by another user");
+//        if (!user.equals(username))
+//            throw new RuntimeException("User DATA can't be modified by another user");
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to save");
-        UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.SUPER_OPERATOR.name());
+        UserDTO dto =  userService.updateUser(id,userDTO,UserRoles.SUPER_OPERATOR.name());
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
                 dto.getEmail(),

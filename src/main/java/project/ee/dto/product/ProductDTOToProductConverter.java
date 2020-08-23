@@ -34,6 +34,19 @@ public class ProductDTOToProductConverter implements Converter<ProductDTO, Produ
                     .orElseThrow(() -> new NotFoundException("Category with id: " + productDTO.getCategoryId() + " not found"));
             product.setCategory(category);
         }
+        product.setQuantityThreshold(productDTO.getQuantityThreshold());
+        product.setAddedDate(productDTO.getAddedDate());
+        product.setLastModificationDate(productDTO.getLastModificationDate());
+        product.setUnity(productDTO.getUnity());
+        product.setDevise(productDTO.getDevise());
+        product.setPromotion(productDTO.getPromotion());
+        product.setPromotionType(productDTO.getPromotionType());
+        product.setLongDescription(productDTO.getLongDescription());
+        product.setShortDescription(productDTO.getShortDescription());
+        product.setProductCode(productDTO.getProductCode());
+        product.setImage1(productDTO.getImage1());
+        product.setImage2(productDTO.getImage2());
+        product.setImage3(productDTO.getImage3());
         return product;
     }
 

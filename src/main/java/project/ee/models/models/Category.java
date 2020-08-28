@@ -19,10 +19,15 @@ public class Category {
     private Long id;
     private String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private Set<Product> productSet = new HashSet<>();
+    @OneToMany(orphanRemoval = true)
+    private Set<Product> products = new HashSet<>();
 
-    @ManyToMany(mappedBy = "categories")
-    private Set<Store> stores = new HashSet<>();
+    public void addProduct(Product product){
+        this.products.add(product);
+    }
+
+    public void removeProduct(Product product){
+        this.products.remove(product);
+    }
 
 }

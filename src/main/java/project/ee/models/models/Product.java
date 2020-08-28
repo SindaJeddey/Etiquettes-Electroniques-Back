@@ -36,6 +36,8 @@ public class Product {
 
     private String promotionType;
 
+    private LocalDate promotionEndDate;
+
     private String longDescription;
 
     private String shortDescription;
@@ -53,7 +55,7 @@ public class Product {
     @ManyToOne
     private Category category;
 
-    @ManyToMany(mappedBy = "products")
-    private Set<Store> stores = new HashSet<>();
+    @OneToMany(orphanRemoval = true)
+    private Set<InStoreProduct> inStoreProducts = new HashSet<>();
 
 }

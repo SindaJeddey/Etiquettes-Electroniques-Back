@@ -1,0 +1,6 @@
+projectKey=etiquettes-electroniques
+serverUrl=http://localhost:9000
+serverVersion=8.4.1.35646
+dashboardUrl=http://localhost:9000/dashboard?id=etiquettes-electroniques
+ceTaskId=AXQfzBijZVNcJGTJ8XwA
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AXQfzBijZVNcJGTJ8XwA

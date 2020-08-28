@@ -24,9 +24,15 @@ public class Store {
 
     private String zipCode;
 
-    @ManyToMany
-    private Set<Category> categories = new HashSet<>();
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Set<InStoreProduct> inStoreProducts = new HashSet<>();
 
-    @ManyToMany
-    private Set<Product> products = new HashSet<>();
+    public void addInStoreProduct(InStoreProduct inStoreProduct){
+        this.inStoreProducts.add(inStoreProduct);
+    }
+
+    public void removeInStoreProduct(InStoreProduct inStoreProduct){
+        this.inStoreProducts.remove(inStoreProduct);
+    }
+
 }

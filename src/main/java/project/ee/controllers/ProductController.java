@@ -31,11 +31,10 @@ public class ProductController {
     }
 
     @PostMapping("/new")
-    public ProductDTO addProduct(@RequestBody ProductDTO productDTO)
-            throws NotFoundException {
+    public ProductDTO addProduct(@RequestBody ProductDTO productDTO) {
         if (productDTO == null)
             throw new IllegalArgumentException("Must provide a product to save");
-        return productService.save(productDTO);
+        return productService.saveNewProduct(productDTO);
     }
 
     @PutMapping("/{id}")

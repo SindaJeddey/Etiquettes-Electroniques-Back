@@ -34,6 +34,8 @@ public class ProductDTOToProductConverter implements Converter<ProductDTO, Produ
                     .orElseThrow(() -> new NotFoundException("Category with id: " + productDTO.getCategoryId() + " not found"));
             product.setCategory(category);
         }
+        else
+            product.setCategory(null);
         product.setQuantityThreshold(productDTO.getQuantityThreshold());
         product.setAddedDate(productDTO.getAddedDate());
         product.setLastModificationDate(productDTO.getLastModificationDate());

@@ -20,6 +20,7 @@ import project.ee.repositories.StoreRepository;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,14 +57,12 @@ class ProductServiceTest {
     @BeforeEach
     void setUp() {
         products = new ArrayList<>();
-        cat1 = Category.builder().name("cat1").productSet(new HashSet<>()).stores(new HashSet<>()).build();
-        product1 = Product.builder().id(1L).name("p1").stores(new HashSet<>()).category(cat1).build();
+        cat1 = Category.builder().name("cat1").build();
+        product1 = Product.builder().id(1L).name("p1").build();
         product2 = Product.builder().id(2L).name("p2").build();
         products.add(product1);
         products.add(product2);
-        store1 = Store.builder().name("store1").id(1L).products(new HashSet<>()).build();
-        store1.getProducts().add(product1);
-        product1.getStores().add(store1);
+        cat1.setProducts((Set<Product>) products);
     }
 
     @Test
@@ -80,9 +79,11 @@ class ProductServiceTest {
     void deleteProduct() throws NotFoundException {
         when(productRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(product1));
         productService.deleteProduct(1L);
-        verify(storeRepository,times(1)).save(any(Store.class));
-        verify(categoryRepository,times(1)).save(any(Category.class));
-        verify(productRepository,times(1)).delete(any(Product.class));
+        assertEquals(cat1.getProducts().size(),1);
     }
 
+    @Test
+    void saveProduct() {
+
+    }
 }

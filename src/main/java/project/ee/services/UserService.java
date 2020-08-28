@@ -84,7 +84,7 @@ public class UserService {
     public UserDTO updateUser(Long id, UserDTO userDTO, String role) throws NotFoundException {
         User toUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User id "+id+" not found"));
-        if (!toUpdate.getRole().equals(role))
+        if (!toUpdate.getRole().equalsIgnoreCase(role))
             throw new NotFoundException("Can't find User id "+id+" with role"+role);
         if(userDTO.getUsername()!=null)
             throw new RuntimeException("Username is unique. You can't change it.");
@@ -99,12 +99,11 @@ public class UserService {
         if(userDTO.getPassword()!=null)
             toUpdate.setPassword(userDTO.getPassword());
         User updated = userRepository.save(toUpdate);
-        UserDTO savedDto = toUserDTOConverter.convert(updated);
-        return savedDto;
+        return toUserDTOConverter.convert(updated);
     }
 
     public List<UserDTO> getAllUsers(String role){
-        List<UserDTO> dtos = userRepository.findAllByRole(role)
+        return userRepository.findAllByRole(role)
                 .stream()
                 .map(user -> toUserDTOConverter.convert(user))
                 .map(userDTO -> {
@@ -112,15 +111,13 @@ public class UserService {
                     return userDTO;
                 })
                 .collect(Collectors.toList());
-        return dtos;
     }
 
 
     public UserDTO getUserByEmail(String email) throws NotFoundException {
-        UserDTO dto = userRepository.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .map(user -> toUserDTOConverter.convert(user))
                 .orElseThrow(() -> new NotFoundException("Can't find user with email "+email));
-        return dto;
     }
 
     public void createPasswordResetToken(UserDTO dto, String token) {
@@ -135,8 +132,7 @@ public class UserService {
                 .orElseThrow(()-> new NotFoundException("Email "+email+"not found"));
         user.setPassword(passwordEncoder.encode(password));
         User saved = userRepository.save(user);
-        UserDTO savedDto = toUserDTOConverter.convert(saved);
-        return savedDto;
+        return toUserDTOConverter.convert(saved);
     }
 
     public UserDTO getUser(Long id, String role) throws NotFoundException {

@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import project.ee.dto.inStoreProduct.InStoreProductDTO;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -31,5 +34,6 @@ public class ProductDTO {
     private byte[] image3;
     private byte[] barcode;
     private Long categoryId;
+    private Set<InStoreProductDTO> inStoreProductDTOSet = new HashSet<>();
 
 }

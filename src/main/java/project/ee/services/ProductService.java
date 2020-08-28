@@ -60,21 +60,17 @@ public class ProductService {
         return toProductDTOConverter.convert(product);
     }
 
-    public ProductDTO save(ProductDTO productDTO) throws NotFoundException {
+    public ProductDTO saveNewProduct(ProductDTO productDTO) {
         Product toSave = toProductConverter.convert(productDTO);
-        Category category = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Category",productDTO.getCategoryId())));
-        toSave.setCategory(category);
-        if(toSave.getAddedDate() == null)
-            toSave.setAddedDate(LocalDate.now());
-        else
-            toSave.setLastModificationDate(LocalDate.now());
-        Product saved = productRepository.save(toSave);
-        Set<Product> products = category.getProductSet();
-        products.add(saved);
-        category.setProductSet(products);
-        categoryRepository.save(category);
-        return toProductDTOConverter.convert(saved);
+        toSave.setAddedDate(LocalDate.now());
+        toSave.setLastModificationDate(LocalDate.now());
+        if (toSave.getCategory() == null)
+            throw new RuntimeException("Must provide a category for this product");
+        else {
+            Product saved = productRepository.save(toSave);
+            saved.getCategory().addProduct(saved);
+            return toProductDTOConverter.convert(saved);
+        }
     }
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) throws NotFoundException {
@@ -86,26 +82,27 @@ public class ProductService {
             productToUpdate.setName(updates.getName());
         if(updates.getQuantity() != null)
             productToUpdate.setQuantity(updates.getQuantity());
-        if(updates.getCategory() != null){
-            Category category = updates.getCategory();
-            productToUpdate.setCategory(category);
-            Set<Product> products = category.getProductSet();
-            products.add(productToUpdate);
-            category.setProductSet(products);
-            categoryRepository.save(category);
-        }
-        if(updates.getLongDescription() != null)
+        if(updates.getLongDescription() != null) {
             productToUpdate.setLongDescription(updates.getLongDescription());
-        if(updates.getShortDescription() != null)
+        }
+        if(updates.getShortDescription() != null) {
             productToUpdate.setShortDescription(updates.getShortDescription());
-        if(updates.getUnity() != null)
+        }
+        if(updates.getUnity() != null) {
             productToUpdate.setUnity(updates.getUnity());
-        if(updates.getDevise() != null)
+        }
+        if(updates.getDevise() != null) {
             productToUpdate.setDevise(updates.getDevise());
-        if(updates.getQuantityThreshold() != null)
+        }
+        if(updates.getQuantityThreshold() != null) {
             productToUpdate.setQuantityThreshold(updates.getQuantityThreshold());
+        }
         productToUpdate.setLastModificationDate(LocalDate.now());
+        if(updates.getCategory() != null){
+            productToUpdate.setCategory(updates.getCategory());
+        }
         Product saved = productRepository.save(productToUpdate);
+        saved.getCategory().addProduct(saved);
         updatedDto = toProductDTOConverter.convert(saved);
         return updatedDto;
     }
@@ -113,24 +110,8 @@ public class ProductService {
     public void deleteProduct(Long id) throws NotFoundException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Product",id)));
-
-        //Deleting product from all the stores
-        Set<Store> stores = product.getStores();
-        stores.forEach(store -> {
-            Set<Product> products = store.getProducts();
-            products.remove(product);
-            store.setProducts(products);
-            storeRepository.save(store);
-        });
-
-        //Deleting the product from its category
         Category category = product.getCategory();
-        Set<Product> categoryProduct = category.getProductSet();
-        categoryProduct.remove(product);
-        category.setProductSet(categoryProduct);
-        categoryRepository.save(category);
-
-        //Deleting the product
-        productRepository.delete(product);
+        category.removeProduct(product);
+        productRepository.delete(product); //see if this instruction is needed
     }
 }

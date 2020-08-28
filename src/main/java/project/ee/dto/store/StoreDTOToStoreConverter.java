@@ -22,16 +22,12 @@ public class StoreDTOToStoreConverter implements Converter<StoreDTO, Store> {
     public Store convert(StoreDTO storeDTO) {
         if (storeDTO == null)
             return null;
-        Store store = Store.builder()
+        return Store.builder()
                 .id(storeDTO.getId())
                 .name(storeDTO.getName())
                 .location(storeDTO.getLocation())
                 .zipCode(storeDTO.getZipCode())
-                .categories(storeDTO.getCategories()
-                        .stream().map(categoryDTO -> toCategoryConverter.convert(categoryDTO))
-                        .collect(Collectors.toSet()))
                 .build();
-        return store;
     }
 
     @Override

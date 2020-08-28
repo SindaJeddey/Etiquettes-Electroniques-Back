@@ -48,20 +48,9 @@ public class StoreController {
         return storeService.updateStore(id,storeDTO);
     }
 
-    @GetMapping("/{id}/{choice}")
-    public StoreDTO fetch(@PathVariable Long id,
-                          @PathVariable String choice) throws NotFoundException {
-
-        switch (choice){
-            case "categories":{
-                return storeService.fetchCategories(id);
-            }
-            case "products":{
-                return storeService.fetchProducts(id);
-            }
-            default:
-                throw new RuntimeException("Choice invalid");
-        }
+    @GetMapping("/{id}/products")
+    public StoreDTO fetch(@PathVariable Long id) throws NotFoundException {
+        return storeService.fetchInStoreProducts(id);
     }
 
 }

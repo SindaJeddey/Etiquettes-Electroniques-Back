@@ -10,6 +10,7 @@ import project.ee.dto.store.StoreDTO;
 import project.ee.dto.store.StoreToStoreDTOConverter;
 import project.ee.exceptions.NotFoundException;
 import project.ee.models.models.Category;
+import project.ee.models.models.Store;
 import project.ee.repositories.CategoryRepository;
 import project.ee.repositories.ProductRepository;
 import project.ee.repositories.StoreRepository;
@@ -22,26 +23,20 @@ import java.util.stream.Collectors;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
-    private final StoreRepository storeRepository;
     private final CategoryToCategoryDTOConverter toCategoryDTOConverter;
     private final CategoryDTOToCategoryConverter toCategoryConverter;
     private final ProductToProductDTOConverter toProductDTOConverter;
-    private final StoreToStoreDTOConverter toStoreDTOConverter;
 
     public CategoryService(CategoryRepository categoryRepository,
                            ProductRepository productRepository,
-                           StoreRepository storeRepository,
                            CategoryToCategoryDTOConverter toCategoryDTOConverter,
                            CategoryDTOToCategoryConverter toCategoryConverter,
-                           ProductToProductDTOConverter toProductDTOConverter,
-                           StoreToStoreDTOConverter toStoreDTOConverter) {
+                           ProductToProductDTOConverter toProductDTOConverter) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
-        this.storeRepository = storeRepository;
         this.toCategoryDTOConverter = toCategoryDTOConverter;
         this.toCategoryConverter = toCategoryConverter;
         this.toProductDTOConverter = toProductDTOConverter;
-        this.toStoreDTOConverter = toStoreDTOConverter;
     }
 
     public Category saveCategory (Category category){
@@ -50,64 +45,38 @@ public class CategoryService {
 
     public CategoryDTO save(CategoryDTO categoryDTO){
         Category toSave= toCategoryConverter.convert(categoryDTO);
-        toSave.setStores(null);
-        toSave.setProductSet(null);
         Category saved = categoryRepository.save(toSave);
-        CategoryDTO savedDto = toCategoryDTOConverter.convert(saved);
-        return savedDto;
+        return toCategoryDTOConverter.convert(saved);
     }
 
     public List<CategoryDTO> getAllCategories(){
-        List<CategoryDTO> dtos = categoryRepository.findAll()
+        return categoryRepository.findAll()
                 .stream()
                 .map(category -> toCategoryDTOConverter.convert(category))
                 .collect(Collectors.toList());
-        return dtos;
     }
 
     public CategoryDTO getCategory(Long id) throws NotFoundException {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
-        CategoryDTO dto = toCategoryDTOConverter.convert(category);
-        return dto;
+        return toCategoryDTOConverter.convert(category);
     }
 
     public void deleteCategory(Long id) throws NotFoundException {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
-        category.getStores().forEach(store -> {
-            store.getCategories().remove(category);
-            storeRepository.save(store);
-        });
-        category.setStores(null);
         categoryRepository.delete(category);
     }
 
     public CategoryDTO getProducts(Long id) throws NotFoundException {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
-        Set<ProductDTO> dtoSet = category.getProductSet()
+        Set<ProductDTO> dtoSet = category.getProducts()
                 .stream()
-                .map(product -> toProductDTOConverter.convert(product))
+                .map(toProductDTOConverter::convert)
                 .collect(Collectors.toSet());
-
         CategoryDTO categoryDTO = toCategoryDTOConverter.convert(category);
-        categoryDTO.setProductSet(dtoSet);
-
-        return categoryDTO;
-    }
-
-    public CategoryDTO getStores(Long id) throws NotFoundException {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
-        Set<StoreDTO> dtoSet = category.getStores()
-                .stream()
-                .map(store -> toStoreDTOConverter.convert(store))
-                .collect(Collectors.toSet());
-
-        CategoryDTO categoryDTO = toCategoryDTOConverter.convert(category);
-        categoryDTO.setStoreSet(dtoSet);
-
+        categoryDTO.setProducts(dtoSet);
         return categoryDTO;
     }
 
@@ -119,6 +88,5 @@ public class CategoryService {
             category.setName(updates.getName());
         Category saved = categoryRepository.save(category);
         return toCategoryDTOConverter.convert(saved);
-
     }
 }

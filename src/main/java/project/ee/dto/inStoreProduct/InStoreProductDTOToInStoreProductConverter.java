@@ -6,22 +6,17 @@ import com.fasterxml.jackson.databind.util.Converter;
 import org.springframework.stereotype.Component;
 import project.ee.dto.product.ProductDTOToProductConverter;
 import project.ee.dto.store.StoreDTOToStoreConverter;
-import project.ee.dto.tag.TagDTOToTagConverter;
 import project.ee.models.models.InStoreProduct;
 
 @Component
 public class InStoreProductDTOToInStoreProductConverter implements Converter<InStoreProductDTO, InStoreProduct> {
 
-    private final StoreDTOToStoreConverter toStoreConverter;
     private final ProductDTOToProductConverter toProductConverter;
-    private final TagDTOToTagConverter toTagConverter;
+    private final StoreDTOToStoreConverter toStoreConverter;
 
-    public InStoreProductDTOToInStoreProductConverter(StoreDTOToStoreConverter toStoreConverter,
-                                                      ProductDTOToProductConverter toProductConverter,
-                                                      TagDTOToTagConverter toTagConverter) {
-        this.toStoreConverter = toStoreConverter;
+    public InStoreProductDTOToInStoreProductConverter(ProductDTOToProductConverter toProductConverter, StoreDTOToStoreConverter toStoreConverter) {
         this.toProductConverter = toProductConverter;
-        this.toTagConverter = toTagConverter;
+        this.toStoreConverter = toStoreConverter;
     }
 
     @Override
@@ -30,9 +25,8 @@ public class InStoreProductDTOToInStoreProductConverter implements Converter<InS
             return null;
         return InStoreProduct.builder()
                 .id(inStoreProductDTO.getId())
-                .product(toProductConverter.convert(inStoreProductDTO.product))
+                .product(toProductConverter.convert(inStoreProductDTO.getProduct()))
                 .store(toStoreConverter.convert(inStoreProductDTO.getStore()))
-                .tag(toTagConverter.convert(inStoreProductDTO.getTag()))
                 .build();
     }
 

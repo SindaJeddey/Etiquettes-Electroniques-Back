@@ -3,11 +3,14 @@ package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import project.ee.dto.inStoreProduct.InStoreProductDTO;
+import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.store.StoreDTO;
 import project.ee.exceptions.NotFoundException;
 import project.ee.services.StoreService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/stores")
@@ -49,8 +52,20 @@ public class StoreController {
     }
 
     @GetMapping("/{id}/products")
-    public StoreDTO fetch(@PathVariable Long id) throws NotFoundException {
+    public StoreDTO fetchStoreAllProducts(@PathVariable Long id) throws NotFoundException {
         return storeService.fetchInStoreProducts(id);
+    }
+
+    @GetMapping("/{id}/products/category/{categoryId}")
+    public StoreDTO fetchStoreAllProductsPerCategory(@PathVariable Long id, @PathVariable Long categoryId)
+            throws NotFoundException {
+        return storeService.fetchCategoryInStoreProducts(id,categoryId);
+    }
+
+    @PutMapping("/{id}/products/add")
+    public Set<InStoreProductDTO> addProduct(@PathVariable Long id, @RequestBody MovementDTO movementDTO)
+            throws NotFoundException {
+        return storeService.addProduct(id,movementDTO);
     }
 
 }

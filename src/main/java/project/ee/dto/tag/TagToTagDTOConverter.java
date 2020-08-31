@@ -3,9 +3,11 @@ package project.ee.dto.tag;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
+import org.springframework.stereotype.Component;
 import project.ee.dto.inStoreProduct.InStoreProductToInStoreProductDTOConverter;
 import project.ee.models.models.Tag;
 
+@Component
 public class TagToTagDTOConverter implements Converter<Tag,TagDTO> {
 
     private final InStoreProductToInStoreProductDTOConverter toInStoreProductDTOConverter;

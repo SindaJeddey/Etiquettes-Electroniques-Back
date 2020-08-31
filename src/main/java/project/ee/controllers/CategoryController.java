@@ -10,8 +10,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
+@PreAuthorize("permitAll()")
+//@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
 public class CategoryController {
+    //All good in here
 
     private final CategoryService categoryService;
 

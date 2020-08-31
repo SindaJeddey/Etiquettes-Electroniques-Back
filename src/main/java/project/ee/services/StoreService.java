@@ -1,16 +1,12 @@
 package project.ee.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import project.ee.dto.category.CategoryDTOToCategoryConverter;
-import project.ee.dto.category.CategoryToCategoryDTOConverter;
 import project.ee.dto.inStoreProduct.InStoreProductDTO;
 import project.ee.dto.inStoreProduct.InStoreProductDTOToInStoreProductConverter;
 import project.ee.dto.inStoreProduct.InStoreProductToInStoreProductDTOConverter;
 import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.movement.MovementDTOToMovementConverter;
-import project.ee.dto.product.ProductDTO;
-import project.ee.dto.product.ProductDTOToProductConverter;
-import project.ee.dto.product.ProductToProductDTOConverter;
 import project.ee.dto.store.StoreDTO;
 import project.ee.dto.store.StoreDTOToStoreConverter;
 import project.ee.dto.store.StoreToStoreDTOConverter;
@@ -25,6 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class StoreService {
 
 
@@ -102,36 +99,50 @@ public class StoreService {
         return toStoreDTOConverter.convert(saved);
     }
 
-    public void addProduct(Long storeId, MovementDTO movementDTO) throws NotFoundException {
-        Store store = fetchStore(storeId);
+    public Set<InStoreProductDTO> addProduct(Long storeId, MovementDTO movementDTO) throws NotFoundException {
+        if (movementDTO.getType().equals(MovementType.IN.name()) &&
+                movementDTO.getType().equals(MovementType.OUT.name()) )
+            throw new RuntimeException("Invalid Transaction");
 
+        if (!movementDTO.getProduct().getStore().getId().equals(storeId))
+            throw new RuntimeException("Incompatible stores");
+
+        Store store = fetchStore(storeId);
         InStoreProduct inStoreProduct = toInStoreProductConverter.convert(movementDTO.getProduct());
         if(inStoreProduct.getProduct() == null)
             throw new RuntimeException("Must provide product to add to store");
+
+        boolean productExisting = store.getInStoreProducts()
+                .stream()
+                .anyMatch(inStoreProduct1 ->
+                        inStoreProduct1.getProduct().getId().equals(inStoreProduct.getProduct().getId()));
+        if(productExisting)
+            throw new RuntimeException("Product exists in store");
+
         Optional<Product> product = productRepository.findById(inStoreProduct.getProduct().getId());
         if(!product.isPresent())
             throw new NotFoundException("Product non existing");
+
         inStoreProduct.setStore(store);
         inStoreProduct.setProduct(product.get());
 
         Movement movement = toMovementConverter.convert(movementDTO);
         movement.setMovementDate(LocalDate.now());
         movement.setProduct(inStoreProduct);
-        Movement savedMovement = movementRepository.save(movement);
-        inStoreProduct.addMovement(savedMovement);
+        inStoreProduct.addMovement(movement);
 
+        Tag tag = Tag.builder()
+                .product(inStoreProduct)
+                .build();
+        inStoreProduct.setTag(tag);
         store.addInStoreProduct(inStoreProduct);
-        storeRepository.save(store);
-    }
+        tag.setProduct(inStoreProduct);
+        Store saved = storeRepository.save(store);
 
-    public void removeProduct(Long id, Long productId) throws NotFoundException {
-        Store store = fetchStore(id);
-
-        InStoreProduct product = inStoreProductRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product id: "+productId+" not found in store: "+id));
-
-        store.removeInStoreProduct(product);
-        storeRepository.save(store);
+        return saved.getInStoreProducts()
+                .stream()
+                .map(toInStoreProductDTOConverter::convert)
+                .collect(Collectors.toSet());
     }
 
     public StoreDTO fetchInStoreProducts(Long id) throws NotFoundException {
@@ -144,4 +155,17 @@ public class StoreService {
         dto.setInStoreProducts(productDTOS);
         return dto;
     }
+
+    public StoreDTO fetchCategoryInStoreProducts(Long id, Long categoryId) throws NotFoundException {
+        Store store = fetchStore(id);
+        Set<InStoreProductDTO> productDTOS = store.getInStoreProducts()
+                .stream()
+                .filter(inStoreProduct -> inStoreProduct.getCategory().getId().equals(categoryId))
+                .map(toInStoreProductDTOConverter::convert)
+                .collect(Collectors.toSet());
+        StoreDTO dto = toStoreDTOConverter.convert(store);
+        dto.setInStoreProducts(productDTOS);
+        return dto;
+    }
 }
+

@@ -3,19 +3,23 @@ package project.ee.dto.movement;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-import project.ee.dto.product.ProductDTOToProductConverter;
+import project.ee.dto.inStoreProduct.InStoreProductDTOToInStoreProductConverter;
+import project.ee.exceptions.NotFoundException;
+import project.ee.models.models.InStoreProduct;
 import project.ee.models.models.Movement;
 
 @Component
 public class MovementDTOToMovementConverter implements Converter<MovementDTO, Movement> {
 
-    private final ProductDTOToProductConverter toProductConverter;
+    private final InStoreProductDTOToInStoreProductConverter toInStoreProductConverter;
 
-    public MovementDTOToMovementConverter(ProductDTOToProductConverter toProductConverter) {
-        this.toProductConverter = toProductConverter;
+    public MovementDTOToMovementConverter(InStoreProductDTOToInStoreProductConverter toInStoreProductConverter) {
+        this.toInStoreProductConverter = toInStoreProductConverter;
     }
 
+    @SneakyThrows
     @Override
     public Movement convert(MovementDTO movementDTO) {
         if (movementDTO == null)
@@ -25,6 +29,7 @@ public class MovementDTOToMovementConverter implements Converter<MovementDTO, Mo
         movement.setType(movementDTO.getType());
         movement.setQuantity(movementDTO.getQuantity());
         movement.setMovementDate(movementDTO.getMovementDate());
+        movement.setProduct(toInStoreProductConverter.convert(movementDTO.getProduct()));
         return movement;
     }
 

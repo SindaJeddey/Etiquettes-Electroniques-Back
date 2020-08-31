@@ -6,14 +6,9 @@ import project.ee.dto.category.CategoryDTOToCategoryConverter;
 import project.ee.dto.category.CategoryToCategoryDTOConverter;
 import project.ee.dto.product.ProductDTO;
 import project.ee.dto.product.ProductToProductDTOConverter;
-import project.ee.dto.store.StoreDTO;
-import project.ee.dto.store.StoreToStoreDTOConverter;
 import project.ee.exceptions.NotFoundException;
 import project.ee.models.models.Category;
-import project.ee.models.models.Store;
 import project.ee.repositories.CategoryRepository;
-import project.ee.repositories.ProductRepository;
-import project.ee.repositories.StoreRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -22,18 +17,15 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final ProductRepository productRepository;
     private final CategoryToCategoryDTOConverter toCategoryDTOConverter;
     private final CategoryDTOToCategoryConverter toCategoryConverter;
     private final ProductToProductDTOConverter toProductDTOConverter;
 
     public CategoryService(CategoryRepository categoryRepository,
-                           ProductRepository productRepository,
                            CategoryToCategoryDTOConverter toCategoryDTOConverter,
                            CategoryDTOToCategoryConverter toCategoryConverter,
                            ProductToProductDTOConverter toProductDTOConverter) {
         this.categoryRepository = categoryRepository;
-        this.productRepository = productRepository;
         this.toCategoryDTOConverter = toCategoryDTOConverter;
         this.toCategoryConverter = toCategoryConverter;
         this.toProductDTOConverter = toProductDTOConverter;
@@ -52,7 +44,7 @@ public class CategoryService {
     public List<CategoryDTO> getAllCategories(){
         return categoryRepository.findAll()
                 .stream()
-                .map(category -> toCategoryDTOConverter.convert(category))
+                .map(toCategoryDTOConverter::convert)
                 .collect(Collectors.toList());
     }
 

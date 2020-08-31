@@ -1,14 +1,15 @@
 package project.ee.bootstrap;
 
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import project.ee.models.models.Category;
+import project.ee.models.models.InStoreProduct;
 import project.ee.models.models.Product;
 import project.ee.models.authentication.User;
 import project.ee.models.authentication.UserRoles;
 import project.ee.models.models.Store;
+import project.ee.repositories.InStoreProductRepository;
 import project.ee.services.CategoryService;
 import project.ee.services.ProductService;
 import project.ee.services.StoreService;
@@ -16,21 +17,22 @@ import project.ee.services.UserService;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Set;
 
 @Component
 @Slf4j
 public class DataBootstrap implements CommandLineRunner {
 
+    private final InStoreProductRepository inStoreProductRepository;
     private final UserService userService;
     private final ProductService productService;
     private final CategoryService categoryService;
     private final StoreService storeService;
 
-    public DataBootstrap(UserService userService,
+    public DataBootstrap(InStoreProductRepository inStoreProductRepository, UserService userService,
                          ProductService productService,
                          CategoryService categoryService,
                          StoreService storeService) {
+        this.inStoreProductRepository = inStoreProductRepository;
         this.userService = userService;
         this.productService = productService;
         this.categoryService = categoryService;
@@ -58,56 +60,49 @@ public class DataBootstrap implements CommandLineRunner {
                 .addedDate(LocalDate.now())
                 .build();
 
-        Set<Product> products = Sets.newHashSet(product1,product2);
-
         Category cat1 = Category.builder()
                 .name("Cat 1")
+                .products(new HashSet<>())
                 .build();
-
-        cat1.setProductSet(products);
-        categoryService.saveCategory(cat1);
-
+        cat1.addProduct(product1);
         product1.setCategory(cat1);
-        productService.saveProduct(product1);
-        product2.setCategory(cat1);
-        productService.saveProduct(product2);
+        categoryService.saveCategory(cat1);
 
         Category cat2 = Category.builder()
                 .name("Cat 2")
+                .products(new HashSet<>())
                 .build();
+        cat2.addProduct(product2);
+        product2.setCategory(cat2);
         categoryService.saveCategory(cat2);
+
+        log.info("Loading categories ...");
+
+        log.info("Loading products ...");
 
         Store store1 = Store.builder()
                 .name("Store 1")
                 .location("aouina")
                 .zipCode("2045")
-                .categories(Sets.newHashSet(cat1,cat2))
-                .products(products)
+                .inStoreProducts(new HashSet<>())
                 .build();
         storeService.save(store1);
-
-        Set<Store> stores = new HashSet<>();
-        stores.add(store1);
-        cat1.setStores(stores);
-        categoryService.saveCategory(cat1);
-        cat2.setStores(stores);
-        categoryService.saveCategory(cat2);
-
-        log.info("Loading categories ...");
-
-        product1.setStores(stores);
-        product2.setStores(stores);
-        productService.saveProduct(product1);
-        productService.saveProduct(product2);
-
-        log.info("Loading products ...");
 
         Store store2 = Store.builder()
                 .name("Store 2")
                 .location("lac")
                 .zipCode("2044")
+                .inStoreProducts(new HashSet<>())
                 .build();
         storeService.save(store2);
+
+        InStoreProduct inStoreProduct = InStoreProduct.builder()
+                .product(product1)
+                .store(store1)
+                .build();
+        store1.addInStoreProduct(inStoreProduct);
+        storeService.save(store1);
+
 
         log.info("Loading stores ...");
     }

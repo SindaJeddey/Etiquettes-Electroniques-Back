@@ -100,8 +100,7 @@ public class StoreService {
     }
 
     public Set<InStoreProductDTO> addProduct(Long storeId, MovementDTO movementDTO) throws NotFoundException {
-        if (movementDTO.getType().equals(MovementType.IN.name()) &&
-                movementDTO.getType().equals(MovementType.OUT.name()) )
+        if (!movementDTO.getType().equals(MovementType.IN.name()))
             throw new RuntimeException("Invalid Transaction");
 
         if (!movementDTO.getProduct().getStore().getId().equals(storeId))
@@ -112,16 +111,18 @@ public class StoreService {
         if(inStoreProduct.getProduct() == null)
             throw new RuntimeException("Must provide product to add to store");
 
-        boolean productExisting = store.getInStoreProducts()
-                .stream()
-                .anyMatch(inStoreProduct1 ->
-                        inStoreProduct1.getProduct().getId().equals(inStoreProduct.getProduct().getId()));
-        if(productExisting)
-            throw new RuntimeException("Product exists in store");
-
         Optional<Product> product = productRepository.findById(inStoreProduct.getProduct().getId());
         if(!product.isPresent())
             throw new NotFoundException("Product non existing");
+
+        boolean productExisting = store.getInStoreProducts()
+                .stream()
+                .anyMatch(inStoreProduct1 ->
+                        inStoreProduct1.getProduct().equals(inStoreProduct.getProduct()));
+        if(productExisting) {
+            throw new RuntimeException("Product exists in store");
+        }
+
 
         inStoreProduct.setStore(store);
         inStoreProduct.setProduct(product.get());
@@ -137,6 +138,33 @@ public class StoreService {
         inStoreProduct.setTag(tag);
         store.addInStoreProduct(inStoreProduct);
         tag.setProduct(inStoreProduct);
+        Store saved = storeRepository.save(store);
+
+        return saved.getInStoreProducts()
+                .stream()
+                .map(toInStoreProductDTOConverter::convert)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<InStoreProductDTO> removeProduct(Long storeId, MovementDTO movementDTO) throws NotFoundException {
+        if (!movementDTO.getType().equals(MovementType.OUT.name()))
+            throw new RuntimeException("Invalid Transaction");
+
+        if (!movementDTO.getProduct().getStore().getId().equals(storeId))
+            throw new RuntimeException("Incompatible stores");
+
+        Store store = fetchStore(storeId);
+        InStoreProduct inStoreProduct = toInStoreProductConverter.convert(movementDTO.getProduct());
+        if(inStoreProduct == null)
+            throw new RuntimeException("Must provide product to remove from store");
+
+        InStoreProduct finalInStoreProduct = inStoreProductRepository.findById(inStoreProduct.getId())
+                .orElseThrow(()-> new NotFoundException("In store product id:"+inStoreProduct.getId()+" not found"));
+        store.removeInStoreProduct(finalInStoreProduct);
+        Product product = finalInStoreProduct.getProduct();
+        product.removeInStoreProduct(finalInStoreProduct);
+        inStoreProductRepository.delete(inStoreProduct);
+        productRepository.save(product);
         Store saved = storeRepository.save(store);
 
         return saved.getInStoreProducts()

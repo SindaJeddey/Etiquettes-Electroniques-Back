@@ -62,10 +62,19 @@ public class StoreController {
         return storeService.fetchCategoryInStoreProducts(id,categoryId);
     }
 
-    @PutMapping("/{id}/products/add")
-    public Set<InStoreProductDTO> addProduct(@PathVariable Long id, @RequestBody MovementDTO movementDTO)
+    @PutMapping("/{id}/products/{operation}")
+    public Set<InStoreProductDTO> addProduct(@PathVariable Long id,
+                                             @PathVariable String operation,
+                                             @RequestBody MovementDTO movementDTO)
             throws NotFoundException {
-        return storeService.addProduct(id,movementDTO);
+        switch (operation){
+            case "add":
+                return storeService.addProduct(id,movementDTO);
+            case "delete":
+                return storeService.removeProduct(id,movementDTO);
+            default:
+                throw new RuntimeException("Invalid operation");
+        }
     }
 
 }

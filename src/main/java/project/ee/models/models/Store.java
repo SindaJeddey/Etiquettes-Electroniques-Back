@@ -37,8 +37,9 @@ public class Store {
     }
 
     public void removeInStoreProduct(InStoreProduct inStoreProduct){
-        this.inStoreProducts.remove(inStoreProduct);
-        inStoreProduct.setStore(null);
+            this.inStoreProducts.remove(inStoreProduct);
+            inStoreProduct.setStore(null);
+
     }
 
 }

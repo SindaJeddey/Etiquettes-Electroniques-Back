@@ -70,8 +70,8 @@ public class Product {
     }
 
     public void removeInStoreProduct(InStoreProduct inStoreProduct){
-        this.inStoreProducts.remove(inStoreProduct);
-        inStoreProduct.setProduct(null);
+            this.inStoreProducts.remove(inStoreProduct);
+            inStoreProduct.setStore(null);
     }
 
     @Override

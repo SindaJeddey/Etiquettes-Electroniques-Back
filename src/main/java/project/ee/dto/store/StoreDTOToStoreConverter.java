@@ -23,8 +23,8 @@ public class StoreDTOToStoreConverter implements Converter<StoreDTO, Store> {
         if (storeDTO == null)
             return null;
         return Store.builder()
-                .id(storeDTO.getId())
                 .name(storeDTO.getName())
+                .storeCode(storeDTO.getStoreCode())
                 .location(storeDTO.getLocation())
                 .zipCode(storeDTO.getZipCode())
                 .build();

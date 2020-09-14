@@ -1,8 +1,10 @@
 package project.ee.models.models;
 
 import lombok.*;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
@@ -16,8 +18,12 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
     private String type;
-    private String code;
+
+    private String tagCode;
+
+    @NotEmpty
     private String name;
 
     @OneToOne

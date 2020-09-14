@@ -54,9 +54,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserDTO updateUserRole (Long id, UserDTO userDTO) throws NotFoundException {
-        User toUpdate = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User Id "+id+" not found"));
+    public UserDTO updateUserRole (String username, UserDTO userDTO) throws NotFoundException {
+        User toUpdate = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username "+username+" not found"));
 
         UserDTO savedDto;
         if (toUpdate.getRole().equals(userDTO.getRole())){
@@ -72,20 +72,20 @@ public class UserService {
         return savedDto;
     }
 
-    public void deleteUser(Long id, String role) throws NotFoundException {
-        User toDelete = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User"+id +"not found"));
+    public void deleteUser(String username, String role) throws NotFoundException {
+        User toDelete = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username "+username +"not found"));
         if (!toDelete.getRole().equals(role))
-            throw new UsernameNotFoundException("Incompatible id "+id+" with role "+role);
+            throw new UsernameNotFoundException("Incompatible username"+username+" with role "+role);
         userRepository.delete(toDelete);
-        log.info("User "+id+" deleted");
+        log.info("Username "+username+" deleted");
     }
 
-    public UserDTO updateUser(Long id, UserDTO userDTO, String role) throws NotFoundException {
-        User toUpdate = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User id "+id+" not found"));
+    public UserDTO updateUser(String username, UserDTO userDTO, String role) throws NotFoundException {
+        User toUpdate = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username"+username+" not found"));
         if (!toUpdate.getRole().equalsIgnoreCase(role))
-            throw new NotFoundException("Can't find User id "+id+" with role"+role);
+            throw new NotFoundException("Can't find Username"+username+" with role"+role);
         if(userDTO.getUsername()!=null)
             throw new RuntimeException("Username is unique. You can't change it.");
         if(userDTO.getName()!=null)
@@ -113,6 +113,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<String> fetchAllUsernames(String role){
+        return userRepository.findAllByRole(role)
+                .stream()
+                .map(user -> user.getUsername())
+                .collect(Collectors.toList());
+    }
 
     public UserDTO getUserByEmail(String email) throws NotFoundException {
         return userRepository.findByEmail(email)
@@ -135,11 +141,11 @@ public class UserService {
         return toUserDTOConverter.convert(saved);
     }
 
-    public UserDTO getUser(Long id, String role) throws NotFoundException {
-        return userRepository.findById(id)
+    public UserDTO getUser(String username, String role) throws NotFoundException {
+        return userRepository.findByUsername(username)
                 .filter(user -> user.getRole().equals(role))
                 .map(user -> toUserDTOConverter.convert(user))
-                .orElseThrow(()-> new NotFoundException("User id "+id+"not found"));
+                .orElseThrow(()-> new NotFoundException("Username "+username+"not found"));
 
     }
 }

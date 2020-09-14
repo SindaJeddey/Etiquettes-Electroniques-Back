@@ -21,10 +21,9 @@ public class TagToTagDTOConverter implements Converter<Tag,TagDTO> {
         if(tag == null)
             return null;
         return TagDTO.builder()
-                .id(tag.getId())
-                .code(tag.getCode())
                 .name(tag.getName())
                 .type(tag.getType())
+                .code(tag.getTagCode())
                 .product(toInStoreProductDTOConverter.convert(tag.getProduct()))
                 .transmitterId(tag.getTransmitter().getId())
                 .build();

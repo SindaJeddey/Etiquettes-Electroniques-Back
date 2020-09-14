@@ -14,9 +14,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDTO {
+public class   ProductDTO {
 
-    private Long id;
     private String name;
     private Long quantity;
     private Long quantityThreshold;
@@ -24,16 +23,14 @@ public class ProductDTO {
     private LocalDate lastModificationDate;
     private String unity;
     private String devise;
-    private String promotion;
-    private String promotionType;
     private String longDescription;
     private String shortDescription;
     private String productCode;
-    private byte[] image1;
-    private byte[] image2;
-    private byte[] image3;
+    private String image1;
+    private String image2;
+    private String  image3;
     private byte[] barcode;
-    private Long categoryId;
+    private String category;
     private Set<InStoreProductDTO> inStoreProductDTOSet = new HashSet<>();
 
 }

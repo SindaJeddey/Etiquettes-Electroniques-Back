@@ -1,11 +1,14 @@
 package project.ee.models.models;
 
 import lombok.*;
+import org.apache.commons.lang3.RandomStringUtils;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -20,45 +23,55 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
     private String name;
 
-    private Long quantity;
-
+    @Positive
     private Long quantityThreshold;
 
     private LocalDate addedDate;
 
     private LocalDate lastModificationDate;
 
+    @NotNull
     private String unity;
 
+    @NotNull
     private String devise;
 
-    private String promotion;
-
-    private String promotionType;
-
-    private LocalDate promotionEndDate;
-
+    @NotEmpty
+    @Lob
     private String longDescription;
 
+    @NotEmpty
     private String shortDescription;
 
-    private String productCode;
+    private String productCode ;
 
-    private byte[] image1;
+    @NotNull
+    private String image1;
 
-    private byte[] image2;
+    @NotNull
+    private String image2;
 
-    private byte[] image3;
-
-    private byte[] barcode;
+    @NotNull
+    private String image3;
 
     @ManyToOne()
+    @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(orphanRemoval = true)
+    @OneToMany(
+            orphanRemoval = true,
+            mappedBy = "product")
     private Set<InStoreProduct> inStoreProducts ;
+
+    @OneToMany(
+            orphanRemoval = true,
+            mappedBy = "product",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}
+    )
+    private Set<Promotion> promotions;
 
     public void addInStoreProduct(InStoreProduct inStoreProduct){
         if (this.inStoreProducts == null)
@@ -72,6 +85,20 @@ public class Product {
     public void removeInStoreProduct(InStoreProduct inStoreProduct){
             this.inStoreProducts.remove(inStoreProduct);
             inStoreProduct.setStore(null);
+    }
+
+    public void addPromotion(Promotion promotion){
+        if (this.promotions == null)
+            this.setPromotions(new HashSet<>());
+        if (this.promotions.contains(promotion))
+            this.promotions.remove(promotion);
+        this.promotions.add(promotion);
+        promotion.setProduct(this);
+    }
+
+    public void removePromotion(Promotion promotion){
+        this.promotions.remove(promotion);
+        promotion.setProduct(null);
     }
 
     @Override

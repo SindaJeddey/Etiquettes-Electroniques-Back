@@ -13,17 +13,14 @@ public class ProductToProductDTOConverter implements Converter<Product, ProductD
         if (product == null)
             return null;
         ProductDTO dto = new ProductDTO();
-        dto.setId(product.getId());
+        dto.setProductCode(product.getProductCode());
         dto.setName(product.getName());
-        dto.setQuantity(product.getQuantity());
-        dto.setCategoryId(product.getCategory().getId());
+        dto.setCategory(product.getCategory().getName());
         dto.setQuantityThreshold(product.getQuantityThreshold());
         dto.setAddedDate(product.getAddedDate());
         dto.setLastModificationDate(product.getLastModificationDate());
         dto.setUnity(product.getUnity());
         dto.setDevise(product.getDevise());
-        dto.setPromotion(product.getPromotion());
-        dto.setPromotionType(product.getPromotionType());
         dto.setLongDescription(product.getLongDescription());
         dto.setShortDescription(product.getShortDescription());
         dto.setProductCode(product.getProductCode());

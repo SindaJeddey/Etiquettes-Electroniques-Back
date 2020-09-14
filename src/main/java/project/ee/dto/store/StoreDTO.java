@@ -17,9 +17,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class StoreDTO {
 
-    private Long id;
     private String name;
     private String location;
     private String zipCode;
+    private String storeCode;
     private Set<InStoreProductDTO> inStoreProducts;
 }

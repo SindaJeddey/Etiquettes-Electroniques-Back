@@ -5,8 +5,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.inStoreProduct.InStoreProductDTO;
 import project.ee.dto.movement.MovementDTO;
+import project.ee.dto.product.ProductDTO;
 import project.ee.dto.store.StoreDTO;
 import project.ee.exceptions.NotFoundException;
+import project.ee.models.models.Product;
 import project.ee.services.StoreService;
 
 import java.util.List;
@@ -29,8 +31,18 @@ public class StoreController {
     }
 
     @GetMapping("/{id}")
-    public StoreDTO getStore(@PathVariable Long id) throws NotFoundException {
+    public StoreDTO getStore(@PathVariable String id) throws NotFoundException {
         return storeService.getStore(id);
+    }
+
+    @GetMapping("/locations")
+    public Set<String> getAllLocations(){
+        return storeService.getAllLocations();
+    }
+
+    @GetMapping("/locations/{location}")
+    public List<StoreDTO> getStoresByLocation(@PathVariable String location){
+        return storeService.getAllStoresByLocation(location);
     }
 
     @PostMapping("/new")
@@ -41,29 +53,29 @@ public class StoreController {
     }
     
     @DeleteMapping("/{id}")
-    public void deleteStore(@PathVariable Long id) throws NotFoundException {
+    public void deleteStore(@PathVariable String id) throws NotFoundException {
         storeService.deleteStore(id);
     }
 
     @PutMapping("/{id}")
-    public StoreDTO updateStore(@PathVariable Long id, @RequestBody StoreDTO storeDTO)
+    public StoreDTO updateStore(@PathVariable String id, @RequestBody StoreDTO storeDTO)
             throws NotFoundException {
         return storeService.updateStore(id,storeDTO);
     }
 
     @GetMapping("/{id}/products")
-    public StoreDTO fetchStoreAllProducts(@PathVariable Long id) throws NotFoundException {
+    public StoreDTO fetchStoreAllProducts(@PathVariable String id) throws NotFoundException {
         return storeService.fetchInStoreProducts(id);
     }
 
     @GetMapping("/{id}/products/category/{categoryId}")
-    public StoreDTO fetchStoreAllProductsPerCategory(@PathVariable Long id, @PathVariable Long categoryId)
+    public StoreDTO fetchStoreAllProductsPerCategory(@PathVariable String id, @PathVariable Long categoryId)
             throws NotFoundException {
         return storeService.fetchCategoryInStoreProducts(id,categoryId);
     }
 
     @PutMapping("/{id}/products/{operation}")
-    public Set<InStoreProductDTO> addProduct(@PathVariable Long id,
+    public Set<InStoreProductDTO> addProduct(@PathVariable String id,
                                              @PathVariable String operation,
                                              @RequestBody MovementDTO movementDTO)
             throws NotFoundException {
@@ -75,6 +87,16 @@ public class StoreController {
             default:
                 throw new RuntimeException("Invalid operation");
         }
+    }
+
+    @GetMapping("/{id}/threshold")
+    public Set<ProductDTO> getBelowThresholdProducts (@PathVariable String id) throws NotFoundException {
+        return storeService.getBelowThreshold(id);
+    }
+
+        @GetMapping("/{id}/products/{productId}")
+    public InStoreProductDTO fetchInStoreProduct(@PathVariable String id,@PathVariable String productId) throws NotFoundException {
+        return storeService.fetchInStoreProduct(id,productId);
     }
 
 }

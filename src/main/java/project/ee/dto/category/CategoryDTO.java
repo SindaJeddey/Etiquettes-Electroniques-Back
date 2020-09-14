@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class CategoryDTO {
 
-    private Long id;
+    private String categoryCode;
     private String name;
     private Set<ProductDTO> products;
 }

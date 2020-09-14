@@ -23,8 +23,9 @@ public class InStoreProductToInStoreProductDTOConverter implements Converter<InS
     public InStoreProductDTO convert(InStoreProduct inStoreProduct) {
         if(inStoreProduct == null)
             return null;
-        return InStoreProductDTO.builder().id(inStoreProduct.getId())
+        return InStoreProductDTO.builder()
                 .product(toProductDTOConverter.convert(inStoreProduct.getProduct()))
+                .inStoreProductCode(inStoreProduct.getInStoreProductCode())
                 .store(toStoreDTOConverter.convert(inStoreProduct.getStore()))
                 .build();
     }

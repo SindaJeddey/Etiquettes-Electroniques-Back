@@ -24,7 +24,7 @@ public class InStoreProductDTOToInStoreProductConverter implements Converter<InS
         if(inStoreProductDTO == null)
             return null;
         return InStoreProduct.builder()
-                .id(inStoreProductDTO.getId())
+                .inStoreProductCode(inStoreProductDTO.getInStoreProductCode())
                 .product(toProductConverter.convert(inStoreProductDTO.getProduct()))
                 .store(toStoreConverter.convert(inStoreProductDTO.getStore()))
                 .build();

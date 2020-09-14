@@ -26,12 +26,11 @@ public class ProductDTOToProductConverter implements Converter<ProductDTO, Produ
         if(productDTO == null)
             return null;
         Product product = new Product();
-        product.setId(productDTO.getId());
         product.setName(productDTO.getName());
-        product.setQuantity(productDTO.getQuantity());
-        if(productDTO.getCategoryId() != null){
-            Category category = categoryRepository.findById(productDTO.getCategoryId())
-                    .orElseThrow(() -> new NotFoundException("Category with id: " + productDTO.getCategoryId() + " not found"));
+        product.setProductCode(productDTO.getProductCode());
+        if(productDTO.getCategory() != null){
+            Category category = categoryRepository.findByName(productDTO.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Category : " + productDTO.getCategory() + " not found"));
             product.setCategory(category);
         }
         else
@@ -41,11 +40,8 @@ public class ProductDTOToProductConverter implements Converter<ProductDTO, Produ
         product.setLastModificationDate(productDTO.getLastModificationDate());
         product.setUnity(productDTO.getUnity());
         product.setDevise(productDTO.getDevise());
-        product.setPromotion(productDTO.getPromotion());
-        product.setPromotionType(productDTO.getPromotionType());
         product.setLongDescription(productDTO.getLongDescription());
         product.setShortDescription(productDTO.getShortDescription());
-        product.setProductCode(productDTO.getProductCode());
         product.setImage1(productDTO.getImage1());
         product.setImage2(productDTO.getImage2());
         product.setImage3(productDTO.getImage3());
@@ -61,4 +57,5 @@ public class ProductDTOToProductConverter implements Converter<ProductDTO, Produ
     public JavaType getOutputType(TypeFactory typeFactory) {
         return null;
     }
+
 }

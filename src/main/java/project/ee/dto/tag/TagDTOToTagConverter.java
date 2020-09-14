@@ -28,14 +28,10 @@ public class TagDTOToTagConverter implements Converter<TagDTO, Tag> {
         if (tagDTO == null)
             return null;
         return Tag.builder()
-                .id(tagDTO.getId())
                 .type(tagDTO.getType())
-                .code(tagDTO.getCode())
+                .tagCode(tagDTO.getCode())
                 .name(tagDTO.getName())
                 .product(toInStoreProductConverter.convert(tagDTO.getProduct()))
-                .transmitter(transmitterRepository.findById(tagDTO.getId())
-                        .orElseThrow(() ->
-                                new NotFoundException("Transmitter id "+tagDTO.getTransmitterId()+"  not found")))
                 .build();
     }
 

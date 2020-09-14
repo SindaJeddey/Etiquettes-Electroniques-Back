@@ -27,8 +27,13 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    CategoryDTO getCategory(@PathVariable Long id) throws NotFoundException {
+    CategoryDTO getCategory(@PathVariable String id) throws NotFoundException {
         return categoryService.getCategory(id);
+    }
+
+    @GetMapping("/names")
+    List<String> getCategoriesName() {
+        return categoryService.getAllCategoriesNames();
     }
 
     @PostMapping("/new")
@@ -39,16 +44,16 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public CategoryDTO updateCategory (@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) throws NotFoundException {
+    public CategoryDTO updateCategory (@PathVariable String id, @RequestBody CategoryDTO categoryDTO) throws NotFoundException {
         return categoryService.updateCategory(id,categoryDTO);
     }
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable Long id) throws NotFoundException {
+    public void deleteCategory(@PathVariable String  id) throws NotFoundException {
         categoryService.deleteCategory(id);
     }
 
     @GetMapping("/{id}/products")
-    public CategoryDTO getAllProducts(@PathVariable Long id) throws NotFoundException {
+    public CategoryDTO getAllProducts(@PathVariable String id) throws NotFoundException {
         return categoryService.getProducts(id);
     }
 

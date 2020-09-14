@@ -10,7 +10,6 @@ import project.ee.dto.inStoreProduct.InStoreProductDTO;
 @AllArgsConstructor
 public class TagDTO {
 
-    private Long id;
     private String type;
     private String code;
     private String name;

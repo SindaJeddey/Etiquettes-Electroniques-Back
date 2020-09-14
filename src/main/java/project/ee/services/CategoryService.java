@@ -1,5 +1,6 @@
 package project.ee.services;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import project.ee.dto.category.CategoryDTO;
 import project.ee.dto.category.CategoryDTOToCategoryConverter;
@@ -37,6 +38,7 @@ public class CategoryService {
 
     public CategoryDTO save(CategoryDTO categoryDTO){
         Category toSave= toCategoryConverter.convert(categoryDTO);
+        toSave.setCategoryCode(RandomStringUtils.randomAlphabetic(5));
         Category saved = categoryRepository.save(toSave);
         return toCategoryDTOConverter.convert(saved);
     }
@@ -48,20 +50,27 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public CategoryDTO getCategory(Long id) throws NotFoundException {
-        Category category = categoryRepository.findById(id)
+    public List<String> getAllCategoriesNames() {
+        return categoryRepository.findAll()
+                .stream()
+                .map(category -> category.getName())
+                .collect(Collectors.toList());
+    }
+
+    public CategoryDTO getCategory(String id) throws NotFoundException {
+        Category category = categoryRepository.findByCategoryCode(id)
             .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
         return toCategoryDTOConverter.convert(category);
     }
 
-    public void deleteCategory(Long id) throws NotFoundException {
-        Category category = categoryRepository.findById(id)
+    public void deleteCategory(String id) throws NotFoundException {
+        Category category = categoryRepository.findByCategoryCode(id)
                 .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
         categoryRepository.delete(category);
     }
 
-    public CategoryDTO getProducts(Long id) throws NotFoundException {
-        Category category = categoryRepository.findById(id)
+    public CategoryDTO getProducts(String id) throws NotFoundException {
+        Category category = categoryRepository.findByCategoryCode(id)
                 .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
         Set<ProductDTO> dtoSet = category.getProducts()
                 .stream()
@@ -72,8 +81,8 @@ public class CategoryService {
         return categoryDTO;
     }
 
-    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) throws NotFoundException {
-        Category category = categoryRepository.findById(id)
+    public CategoryDTO updateCategory(String id, CategoryDTO categoryDTO) throws NotFoundException {
+        Category category = categoryRepository.findByCategoryCode(id)
                 .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
         Category updates = toCategoryConverter.convert(categoryDTO);
         if(updates.getName() != null)

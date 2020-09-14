@@ -49,8 +49,8 @@ class UserServiceTest {
 
     @Test
     void deleteUser() throws NotFoundException {
-        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(user));
-        userService.deleteUser(1L,UserRoles.ADMIN.name());
+        when(userRepository.findByUsername(anyString())).thenReturn(java.util.Optional.ofNullable(user));
+        userService.deleteUser("admin",UserRoles.ADMIN.name());
         verify(userRepository,times(1)).delete(any(User.class));
     }
 }

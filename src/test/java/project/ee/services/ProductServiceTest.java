@@ -77,8 +77,8 @@ class ProductServiceTest {
 
     @Test
     void deleteProduct() throws NotFoundException {
-        when(productRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(product1));
-        productService.deleteProduct(1L);
+        when(productRepository.findByProductCode(anyString())).thenReturn(java.util.Optional.ofNullable(product1));
+        productService.deleteProduct("8512351");
         assertEquals(cat1.getProducts().size(),1);
     }
 

@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MovementDTO {
 
-    private Long id;
-
     private String type;
 
     private LocalDate movementDate;
@@ -21,4 +19,6 @@ public class MovementDTO {
     private Long quantity;
 
     private InStoreProductDTO product;
+
+    private String movementCode;
 }

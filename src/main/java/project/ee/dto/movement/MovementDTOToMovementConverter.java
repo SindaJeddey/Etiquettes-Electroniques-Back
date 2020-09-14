@@ -25,10 +25,10 @@ public class MovementDTOToMovementConverter implements Converter<MovementDTO, Mo
         if (movementDTO == null)
             return null;
         Movement movement = new Movement();
-        movement.setId(movementDTO.getId());
         movement.setType(movementDTO.getType());
         movement.setQuantity(movementDTO.getQuantity());
         movement.setMovementDate(movementDTO.getMovementDate());
+        movement.setMovementCode(movementDTO.getMovementCode());
         movement.setProduct(toInStoreProductConverter.convert(movementDTO.getProduct()));
         return movement;
     }

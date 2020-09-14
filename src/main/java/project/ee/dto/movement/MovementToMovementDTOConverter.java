@@ -9,18 +9,13 @@ import project.ee.models.models.Movement;
 
 @Component
 public class MovementToMovementDTOConverter implements Converter<Movement,MovementDTO> {
-    private final ProductToProductDTOConverter toProductDTOConverter;
-
-    public MovementToMovementDTOConverter(ProductToProductDTOConverter toProductDTOConverter) {
-        this.toProductDTOConverter = toProductDTOConverter;
-    }
 
     @Override
     public MovementDTO convert(Movement movement) {
         if(movement == null)
             return null;
         MovementDTO dto = new MovementDTO();
-        dto.setId(movement.getId());
+        dto.setMovementCode(movement.getMovementCode());
         dto.setType(movement.getType());
         dto.setQuantity(movement.getQuantity());
         dto.setMovementDate(movement.getMovementDate());

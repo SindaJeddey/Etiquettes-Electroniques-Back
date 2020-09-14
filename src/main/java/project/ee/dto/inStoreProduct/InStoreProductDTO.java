@@ -16,10 +16,10 @@ import java.util.Set;
 @AllArgsConstructor
 public class InStoreProductDTO {
 
-    private Long id;
-    protected ProductDTO product;
+    private ProductDTO product;
     private StoreDTO store;
     private TagDTO tag;
+    private String inStoreProductCode;
     private Set<MovementDTO> movements = new HashSet<>();
 
 }

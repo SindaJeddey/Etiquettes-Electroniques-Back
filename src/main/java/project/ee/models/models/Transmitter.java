@@ -20,6 +20,6 @@ public class Transmitter {
     private String name;
     private String code;
 
-    @OneToMany
+    @OneToMany(mappedBy = "transmitter")
     private Set<Tag> tags = new HashSet<>();
 }

@@ -16,7 +16,7 @@ public class CategoryDTOToCategoryConverter implements Converter<CategoryDTO, Ca
         if (categoryDTO == null)
             return null;
         Category category = new Category();
-        category.setId(categoryDTO.getId());
+        category.setCategoryCode(categoryDTO.getCategoryCode());
         category.setName(categoryDTO.getName());
         return category;
     }

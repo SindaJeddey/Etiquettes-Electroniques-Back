@@ -14,7 +14,7 @@ public class StoreToStoreDTOConverter implements Converter<Store,StoreDTO> {
         if(store == null)
             return null;
         StoreDTO storeDTO = new StoreDTO();
-        storeDTO.setId(store.getId());
+        storeDTO.setStoreCode(store.getStoreCode());
         storeDTO.setName(store.getName());
         storeDTO.setLocation(store.getLocation());
         storeDTO.setZipCode(store.getZipCode());

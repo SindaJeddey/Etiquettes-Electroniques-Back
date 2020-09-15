@@ -77,7 +77,6 @@ public class MovementService {
 
         if(inStoreProduct.getProduct().getQuantityThreshold() > inStoreProduct.getQuantity())
             inStoreProduct.setAlertThreshold(true   );
-
         inStoreProduct.addMovement(movement);
         inStoreProductRepository.save(inStoreProduct);
     }

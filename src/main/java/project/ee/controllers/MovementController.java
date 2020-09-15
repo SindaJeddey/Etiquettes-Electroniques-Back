@@ -10,8 +10,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/transactions")
-@PreAuthorize("permitAll()")
-//@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN','ROLE_SUPER_OPERATOR')")
 public class MovementController {
     private final MovementService movementService;
 

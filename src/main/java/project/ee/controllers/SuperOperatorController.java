@@ -13,8 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/super-operators")
-@PreAuthorize("permitAll()")
-
 public class SuperOperatorController {
 
     private final UserService userService;
@@ -28,17 +26,19 @@ public class SuperOperatorController {
     }
 
     @GetMapping
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserDTO> getAllSuperOperators (){
         return userService.getAllUsers(UserRoles.SUPER_OPERATOR.name());
     }
 
     @GetMapping("/{username}")
+    @PreAuthorize("permitAll()")
     public UserDTO getSuperOperator(@PathVariable String username) throws NotFoundException {
         return userService.getUser(username, UserRoles.SUPER_OPERATOR.name());
     }
 
     @GetMapping("/usernames")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<String> fetchAllUsernames(){
         return userService.fetchAllUsernames(UserRoles.SUPER_OPERATOR.name());
     }
@@ -80,11 +80,8 @@ public class SuperOperatorController {
 
     @PutMapping("/update/{username}")
     @PreAuthorize("hasAuthority('ROLE_SUPER_OPERATOR')")
-    public UserDTO updateOperator(@RequestAttribute String user,
-                                  @PathVariable String username,
+    public UserDTO updateSuperOperator(@PathVariable String username,
                                   @RequestBody UserDTO userDTO) throws NotFoundException {
-//        if (!user.equals(username))
-//            throw new RuntimeException("User DATA can't be modified by another user");
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to save");
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.SUPER_OPERATOR.name());

@@ -13,7 +13,6 @@ public class UserDTOToUserConverter implements Converter<UserDTO, User> {
         if (userDTO== null)
             return null;
         User user = new User();
-        user.setId(userDTO.getId());
         user.setName(userDTO.getName());
         user.setLastName(userDTO.getLastName());
         user.setUsername(userDTO.getUsername());

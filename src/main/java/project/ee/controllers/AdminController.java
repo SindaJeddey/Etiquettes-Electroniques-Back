@@ -25,24 +25,25 @@ public class AdminController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserDTO> getAllAdmins (){
         return userService.getAllUsers(UserRoles.ADMIN.name());
     }
 
     @GetMapping("/{username}")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO getAdmin(@PathVariable String username) throws NotFoundException {
         return userService.getUser(username, UserRoles.ADMIN.name());
     }
 
     @GetMapping("/usernames")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<String> fetchAllUsernames(){
         return userService.fetchAllUsernames(UserRoles.ADMIN.name());
     }
 
     @PostMapping("/new")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newAdmin(@RequestBody UserDTO dto){
         if (dto == null)
             throw new IllegalArgumentException("Must provide a user to save");
@@ -59,14 +60,11 @@ public class AdminController {
     }
 
     @PutMapping("/update/{username}")
-//    @PreAuthorize("hasAuthority('ROLE_OPERATOR')")
-    public UserDTO updateAdmin(
-                                  @PathVariable String username,
-                                  @RequestBody UserDTO userDTO) throws NotFoundException {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public UserDTO updateAdmin(@PathVariable String username,
+                               @RequestBody UserDTO userDTO) throws NotFoundException {
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to save");
-//        if (!user.equals(username))
-//            throw new RuntimeException("User DATA can't be modified by another user");
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.ADMIN.name());
         NotificationEmail account_modification = new NotificationEmail(
                 "Account Modification",

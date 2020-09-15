@@ -10,11 +10,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@PreAuthorize("permitAll()")
-//@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
 public class CategoryController {
-    //All good in here
-
     private final CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
@@ -22,16 +19,19 @@ public class CategoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
     List<CategoryDTO> getAllCategories(){
         return categoryService.getAllCategories();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
     CategoryDTO getCategory(@PathVariable String id) throws NotFoundException {
         return categoryService.getCategory(id);
     }
 
     @GetMapping("/names")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
     List<String> getCategoriesName() {
         return categoryService.getAllCategoriesNames();
     }

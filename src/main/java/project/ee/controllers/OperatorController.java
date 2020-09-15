@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/operators")
-@PreAuthorize("permitAll()")
 @Slf4j
 public class OperatorController {
 
@@ -28,24 +27,25 @@ public class OperatorController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserDTO> getAllOperators (){
         return userService.getAllUsers(UserRoles.OPERATOR.name());
     }
 
     @GetMapping("/{username}")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("permitAll()")
     public UserDTO getOperator(@PathVariable String username) throws NotFoundException {
         return userService.getUser(username, UserRoles.OPERATOR.name());
     }
 
     @GetMapping("/usernames")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<String> fetchAllUsernames(){
         return userService.fetchAllUsernames(UserRoles.OPERATOR.name());
     }
 
     @PostMapping("/new")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newOperator(@RequestBody UserDTO dto){
         if (dto == null)
             throw new IllegalArgumentException("Must provide a user to save");
@@ -62,7 +62,7 @@ public class OperatorController {
     }
 
     @PutMapping("/{username}")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO updateOperatorRole (@PathVariable String username, @RequestBody UserDTO userDTO )
             throws NotFoundException {
         if (userDTO == null)
@@ -80,14 +80,11 @@ public class OperatorController {
     }
 
     @PutMapping("/update/{username}")
-//    @PreAuthorize("hasAuthority('ROLE_OPERATOR')")
-    public UserDTO updateOperator(@RequestAttribute String user,
-                                  @PathVariable String username,
+    @PreAuthorize("hasAuthority('ROLE_OPERATOR')")
+    public UserDTO updateOperator(@PathVariable String username,
                                   @RequestBody UserDTO userDTO) throws NotFoundException {
         if (userDTO == null)
             throw new IllegalArgumentException("Must provide a user to save");
-//        if (!user.equals(username))
-//            throw new RuntimeException("User DATA can't be modified by another user");
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.OPERATOR.name());
         NotificationEmail account_modification = new NotificationEmail(
                 "Account Modification",
@@ -106,7 +103,7 @@ public class OperatorController {
     }
 
     @DeleteMapping("/{username}")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteOperator(@PathVariable String username) throws NotFoundException {
         userService.deleteUser(username,UserRoles.OPERATOR.name());
     }

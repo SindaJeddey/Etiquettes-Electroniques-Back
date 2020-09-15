@@ -48,6 +48,7 @@ public class DataBootstrap implements CommandLineRunner {
     private void loadProductsAndCategories() {
         Product product1 = Product.builder()
                 .name("Product 1")
+                .quantityThreshold(500L)
                 .addedDate(LocalDate.now())
                 .productCode(RandomStringUtils.randomAlphabetic(10))
                 .build();
@@ -63,6 +64,7 @@ public class DataBootstrap implements CommandLineRunner {
 
         Product product2 = Product.builder()
                 .name("Product 2")
+                .quantityThreshold(1000L)
                 .productCode(RandomStringUtils.randomAlphabetic(10))
                 .addedDate(LocalDate.now())
                 .build();
@@ -109,6 +111,7 @@ public class DataBootstrap implements CommandLineRunner {
 
         InStoreProduct inStoreProduct = InStoreProduct.builder()
                 .product(product1)
+                .quantity(1500L)
                 .store(store1)
                 .inStoreProductCode(RandomStringUtils.randomAlphabetic(10))
                 .build();
@@ -119,6 +122,7 @@ public class DataBootstrap implements CommandLineRunner {
 
         Movement movement = Movement.builder()
                 .movementDate(LocalDate.now())
+                .type("IN")
                 .movementCode(RandomStringUtils.randomAlphabetic(10))
                 .quantity(500L)
                 .product(inStoreProduct)

@@ -3,21 +3,16 @@ package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import project.ee.dto.inStoreProduct.InStoreProductDTO;
-import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.product.ProductDTO;
 import project.ee.dto.promotion.PromotionDTO;
 import project.ee.exceptions.NotFoundException;
-import project.ee.services.MovementService;
 import project.ee.services.ProductService;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/products")
-@PreAuthorize("permitAll()")
-//@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN','ROLE_SUPER_OPERATOR')")
 public class ProductController {
 
 

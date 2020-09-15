@@ -8,7 +8,6 @@ import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.product.ProductDTO;
 import project.ee.dto.store.StoreDTO;
 import project.ee.exceptions.NotFoundException;
-import project.ee.models.models.Product;
 import project.ee.services.StoreService;
 
 import java.util.List;

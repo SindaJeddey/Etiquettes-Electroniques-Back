@@ -1,8 +1,14 @@
 package project.ee.models.models;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.HashSet;
@@ -23,18 +29,22 @@ public class InStoreProduct {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @NotNull(message = "Must provide a product to store")
     private Product product;
 
     @ManyToOne
     @JoinColumn(name = "store_id")
+    @NotNull(message = "Must provide a store for the product ")
     private Store store;
 
+    @NotEmpty(message = "Must provide a code for the in store product")
     private String inStoreProductCode;
 
     @OneToOne(
             cascade = {CascadeType.MERGE, CascadeType.REMOVE},
             orphanRemoval = true,
             mappedBy = "product")
+    @NotNull(message = "Must provide a tag for the product in store")
     private Tag tag;
 
     @OneToMany(
@@ -43,8 +53,8 @@ public class InStoreProduct {
             mappedBy = "product")
     private Set<Movement> movements = new HashSet<>();
 
-    @NotNull
-    @Positive
+    @NotNull(message = "Must provide an initial quantity for the in store product")
+    @Positive(message = "Quantity must be positive")
     private Long quantity;
 
     private boolean alertThreshold;

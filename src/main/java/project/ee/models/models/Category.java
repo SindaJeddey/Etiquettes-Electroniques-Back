@@ -1,10 +1,14 @@
 package project.ee.models.models;
 
-import lombok.*;
-import org.apache.commons.lang3.RandomStringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,9 +24,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide a category name")
     private String name;
 
+    @NotEmpty(message = "Must provide category code")
     private String categoryCode;
 
     @OneToMany(

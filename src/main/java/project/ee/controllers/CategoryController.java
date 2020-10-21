@@ -6,11 +6,12 @@ import project.ee.dto.category.CategoryDTO;
 import project.ee.exceptions.NotFoundException;
 import project.ee.services.CategoryService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
+//@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
 public class CategoryController {
     private final CategoryService categoryService;
 
@@ -37,7 +38,7 @@ public class CategoryController {
     }
 
     @PostMapping("/new")
-    public CategoryDTO addCategory(@RequestBody CategoryDTO categoryDTO){
+    public CategoryDTO addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
         if(categoryDTO == null)
             throw new IllegalArgumentException("Must provide a category to save");
         return categoryService.save(categoryDTO);

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import project.ee.dto.password.PasswordDTO;
 import project.ee.dto.user.UserDTO;
 import project.ee.dto.user.UserDTOToUserConverter;
 import project.ee.dto.user.UserToUserDTOConverter;
@@ -12,6 +13,7 @@ import project.ee.models.authentication.PasswordResetToken;
 import project.ee.models.authentication.User;
 import project.ee.repositories.UserRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -126,11 +128,16 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Can't find user with email "+email));
     }
 
-    public void createPasswordResetToken(UserDTO dto, String token) {
-        User user = toUserConverter.convert(dto);
-        PasswordResetToken resetToken = passwordResetService.saveNewToken(token,user);
-        user.setResetToken(resetToken);
-        userRepository.save(user);
+    public UserDTO createPasswordResetToken(PasswordDTO passwordDTO, String token) throws NotFoundException {
+        User user = userRepository.findByEmail(passwordDTO.getEmail())
+                .orElseThrow(() -> new NotFoundException("Can't find user with email "+passwordDTO.getEmail()));;
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        LocalDate expiryDate = LocalDate.now().plusDays(1);
+        resetToken.setExpiryDate(expiryDate);
+        user.addResetToken(resetToken);
+        User saved = userRepository.save(user);
+        return toUserDTOConverter.convert(saved);
     }
 
     public UserDTO userPasswordReset(String email, String password) throws NotFoundException {

@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 import project.ee.models.models.*;
 import project.ee.models.authentication.User;
 import project.ee.models.authentication.UserRoles;
-import project.ee.repositories.InStoreProductRepository;
 import project.ee.services.CategoryService;
-import project.ee.services.ProductService;
 import project.ee.services.StoreService;
 import project.ee.services.UserService;
 
@@ -20,19 +18,14 @@ import java.util.HashSet;
 @Slf4j
 public class DataBootstrap implements CommandLineRunner {
 
-    private final InStoreProductRepository inStoreProductRepository;
     private final UserService userService;
-    private final ProductService productService;
     private final CategoryService categoryService;
     private final StoreService storeService;
 
-    public DataBootstrap(InStoreProductRepository inStoreProductRepository, UserService userService,
-                         ProductService productService,
+    public DataBootstrap(UserService userService,
                          CategoryService categoryService,
                          StoreService storeService) {
-        this.inStoreProductRepository = inStoreProductRepository;
         this.userService = userService;
-        this.productService = productService;
         this.categoryService = categoryService;
         this.storeService = storeService;
     }

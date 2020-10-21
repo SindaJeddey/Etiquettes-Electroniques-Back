@@ -29,30 +29,26 @@ public class PasswordController {
         this.mailSendingService = mailSendingService;
     }
 
-    @PostMapping("/token")
+    @PutMapping("/token")
     public PasswordDTO passwordResetLink (@RequestBody PasswordDTO passwordDTO) throws NotFoundException {
         if (passwordDTO == null)
             throw new IllegalArgumentException("Must provide an email");
-        UserDTO dto = userService.getUserByEmail(passwordDTO.getEmail());
         String token = UUID.randomUUID().toString();
-        userService.createPasswordResetToken(dto,token);
-
-        NotificationEmail password_reinitialization = new NotificationEmail(
+        UserDTO dto = userService.createPasswordResetToken(passwordDTO,token);
+        NotificationEmail passwordReinitialization = new NotificationEmail(
                 "Password Reinitialization",
                 dto.getEmail(),
-                String.format("Dear %s %s,\nPlease click the link below to reset your password.\n%s",
+                String.format("Dear %s %s,%nPlease click the link below to reset your password.%n%s",
                         dto.getName(),dto.getLastName(),"http://localhost:3000/password_reset?token="+token)
         );
-        mailSendingService.sendMail(password_reinitialization);
-        System.out.printf(token);
-
+        mailSendingService.sendMail(passwordReinitialization);
         PasswordDTO savedPasswordDTO = new PasswordDTO();
         savedPasswordDTO.setEmail(passwordDTO.getEmail());
         savedPasswordDTO.setToken(token);
         return savedPasswordDTO;
     }
 
-    @PostMapping("/reset")
+    @PutMapping("/reset")
     public String passwordReset (@RequestBody PasswordDTO passwordDTO) throws NotFoundException {
         if (passwordDTO == null)
             throw new IllegalArgumentException("Must provide a new password");
@@ -62,13 +58,13 @@ public class PasswordController {
         else {
             String email = passwordResetService.findToken(passwordDTO.getToken()).getUser().getEmail();
             UserDTO dto = userService.userPasswordReset(email,passwordDTO.getNewPassword());
-            NotificationEmail password_reinitialization = new NotificationEmail(
+            NotificationEmail passwordReinitialization = new NotificationEmail(
                     "Password Change",
                     dto.getEmail(),
-                    String.format("Dear %s %s,\nYour password has been successfully reset.",
+                    String.format("Dear %s %s,%nYour password has been successfully reset.",
                             dto.getName(),dto.getLastName())
             );
-            mailSendingService.sendMail(password_reinitialization);
+            mailSendingService.sendMail(passwordReinitialization);
             return "SAVED";
         }
     }

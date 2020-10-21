@@ -9,12 +9,10 @@ import project.ee.exceptions.NotFoundException;
 import project.ee.models.models.InStoreProduct;
 import project.ee.models.models.Movement;
 import project.ee.models.models.MovementType;
-import project.ee.models.models.Product;
 import project.ee.repositories.InStoreProductRepository;
 import project.ee.repositories.MovementRepository;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,14 +38,9 @@ public class MovementService {
         InStoreProduct inStoreProduct = inStoreProductRepository.findByInStoreProductCode(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found: "+productId));
         return inStoreProduct.getMovements()
-                .stream().map(movement -> toMovementDTOConverter.convert(movement))
-                .collect(Collectors.toSet());
-    }
-
-    public MovementDTO getMovement(String  id) throws NotFoundException {
-        return movementRepository.findByMovementCode(id)
+                .stream()
                 .map(toMovementDTOConverter::convert)
-                .orElseThrow(() -> new NotFoundException("Movement code "+id+" not found"));
+                .collect(Collectors.toSet());
     }
 
     public void addMovement(MovementDTO movementDTO) throws NotFoundException {
@@ -64,17 +57,17 @@ public class MovementService {
 
         if(movementDTO.getQuantity() == null ||movementDTO.getQuantity() < 0)
             throw new RuntimeException("Must provide a valid quantity");
+
+
         Movement movement = toMovementConverter.convert(movementDTO);
         movement.setMovementDate(LocalDate.now());
         movement.setMovementCode(RandomStringUtils.randomAlphabetic(10));
         InStoreProduct inStoreProduct = inStoreProductRepository.findByInStoreProductCode(movementDTO.getProduct().getInStoreProductCode())
                 .orElseThrow(() -> new NotFoundException("Product in store id: "+movementDTO.getProduct().getInStoreProductCode()+" not found"));
-        movement.setProduct(inStoreProduct);
         if(movement.getType().equals(MovementType.OUT.name()))
             inStoreProduct.setQuantity(inStoreProduct.getQuantity()-movement.getQuantity());
         else
             inStoreProduct.setQuantity(inStoreProduct.getQuantity()+movement.getQuantity());
-
         if(inStoreProduct.getProduct().getQuantityThreshold() > inStoreProduct.getQuantity())
             inStoreProduct.setAlertThreshold(true   );
         inStoreProduct.addMovement(movement);

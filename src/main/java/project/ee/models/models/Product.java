@@ -1,9 +1,13 @@
 package project.ee.models.models;
 
-import lombok.*;
-import org.apache.commons.lang3.RandomStringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -23,42 +27,45 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide the product's name")
     private String name;
 
-    @Positive
+    @Positive(message = "Quantity threshold must be positive")
+    @NotNull
     private Long quantityThreshold;
 
     private LocalDate addedDate;
 
     private LocalDate lastModificationDate;
 
-    @NotNull
+    @NotEmpty(message = "Must provide the product's unity")
     private String unity;
 
-    @NotNull
+    @NotEmpty(message = "Must provide the product's devise")
     private String devise;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide a long description for the product")
     @Lob
     private String longDescription;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide a short description for the product")
     private String shortDescription;
 
+    @NotEmpty(message = "Must provide a product code")
     private String productCode ;
 
-    @NotNull
+    @NotEmpty(message = "Must provide 3 images for the product")
     private String image1;
 
-    @NotNull
+    @NotEmpty(message = "Must provide 3 images for the product")
     private String image2;
 
-    @NotNull
+    @NotEmpty(message = "Must provide 3 images for the product")
     private String image3;
 
     @ManyToOne()
     @JoinColumn(name = "category_id")
+    @NotNull(message = "Product must have a category")
     private Category category;
 
     @OneToMany(

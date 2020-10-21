@@ -32,6 +32,8 @@ public class CategoryService {
         this.toProductDTOConverter = toProductDTOConverter;
     }
 
+    private static final String NOT_FOUND = "Category with id: %s not found";
+
     public Category saveCategory (Category category){
         return categoryRepository.save(category);
     }
@@ -53,25 +55,25 @@ public class CategoryService {
     public List<String> getAllCategoriesNames() {
         return categoryRepository.findAll()
                 .stream()
-                .map(category -> category.getName())
+                .map(Category::getName)
                 .collect(Collectors.toList());
     }
 
     public CategoryDTO getCategory(String id) throws NotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-            .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
+            .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
         return toCategoryDTOConverter.convert(category);
     }
 
     public void deleteCategory(String id) throws NotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-                .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
         categoryRepository.delete(category);
     }
 
     public CategoryDTO getProducts(String id) throws NotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-                .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
         Set<ProductDTO> dtoSet = category.getProducts()
                 .stream()
                 .map(toProductDTOConverter::convert)
@@ -83,10 +85,9 @@ public class CategoryService {
 
     public CategoryDTO updateCategory(String id, CategoryDTO categoryDTO) throws NotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-                .orElseThrow(() -> new NotFoundException("Category with id: "+id+" not found"));
-        Category updates = toCategoryConverter.convert(categoryDTO);
-        if(updates.getName() != null)
-            category.setName(updates.getName());
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
+        if(categoryDTO.getName() != null)
+            category.setName(categoryDTO.getName());
         Category saved = categoryRepository.save(category);
         return toCategoryDTOConverter.convert(saved);
     }

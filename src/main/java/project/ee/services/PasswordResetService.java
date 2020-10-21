@@ -21,15 +21,6 @@ public class PasswordResetService {
         this.userRepository = userRepository;
     }
 
-    public PasswordResetToken saveNewToken (String token, User user){
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setToken(token);
-        resetToken.setUser(user);
-        LocalDate expiryDate = LocalDate.now().plusDays(1);
-        resetToken.setExpiryDate(expiryDate);
-        PasswordResetToken saved = passwordResetTokenRepository.save(resetToken);
-        return saved;
-    }
 
     public String validateToken(String token) {
         Optional<PasswordResetToken> passwordResetTokenOptional = passwordResetTokenRepository
@@ -50,8 +41,7 @@ public class PasswordResetService {
     }
 
     public PasswordResetToken findToken(String token){
-        PasswordResetToken finalToken =passwordResetTokenRepository.findByToken(token)
+        return passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalStateException("Token not found"));
-        return finalToken;
     }
 }

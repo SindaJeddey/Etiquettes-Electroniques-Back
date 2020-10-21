@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import project.ee.dto.product.ProductDTO;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 @Getter
@@ -15,6 +16,9 @@ import java.util.Set;
 public class CategoryDTO {
 
     private String categoryCode;
+
+    @NotEmpty(message = "Must provide a category name")
     private String name;
+
     private Set<ProductDTO> products;
 }

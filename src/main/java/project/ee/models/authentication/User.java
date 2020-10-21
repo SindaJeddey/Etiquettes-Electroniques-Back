@@ -8,6 +8,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -45,7 +47,18 @@ public class User {
 
     private byte[] image;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "reset_token_id")
-    private PasswordResetToken resetToken;
+    @OneToMany(
+            orphanRemoval = true,
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},
+            mappedBy = "user")
+    private Set<PasswordResetToken> resetTokens;
+
+    public void addResetToken (PasswordResetToken passwordResetToken){
+        if (resetTokens == null)
+            this.setResetTokens(new HashSet<>());
+        if (this.resetTokens.contains(passwordResetToken))
+            this.resetTokens.remove(passwordResetToken);
+        this.resetTokens.add(passwordResetToken);
+        passwordResetToken.setUser(this);
+    }
 }

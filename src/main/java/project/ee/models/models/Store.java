@@ -1,7 +1,10 @@
 package project.ee.models.models;
 
-import lombok.*;
-import org.apache.commons.lang3.RandomStringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -20,15 +23,16 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide a store name")
     private String name;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide a store location")
     private String location;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide the store's location's ZIP code")
     private String zipCode;
 
+    @NotEmpty(message = "Must provide a store code")
     private String storeCode ;
 
     @OneToMany(

@@ -23,7 +23,6 @@ public class ApplicationUserService implements UserDetailsService {
         User user = userRepository
                 .findByUsername(s)
                 .orElseThrow(() -> new UsernameNotFoundException("Username "+s+" not found"));
-        ApplicationUser applicationUser = new ApplicationUser(user);
-        return applicationUser;
+        return new ApplicationUser(user);
     }
 }

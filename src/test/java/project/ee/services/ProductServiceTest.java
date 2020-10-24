@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,16 +32,7 @@ class ProductServiceTest {
     ProductRepository productRepository;
 
     @Mock
-    StoreRepository storeRepository;
-
-    @Mock
-    CategoryRepository categoryRepository;
-
-    @Mock
     ProductToProductDTOConverter toProductDTOConverter;
-
-    @Mock
-    ProductDTOToProductConverter toProductConverter;
 
     @InjectMocks
     ProductService productService;
@@ -52,7 +41,6 @@ class ProductServiceTest {
     Product product1;
     Product product2;
     List<Product> products;
-    Store store1;
 
     @BeforeEach
     void setUp() {
@@ -62,7 +50,8 @@ class ProductServiceTest {
         product2 = Product.builder().id(2L).name("p2").build();
         products.add(product1);
         products.add(product2);
-        cat1.setProducts((Set<Product>) products);
+        cat1.setProducts(new HashSet<>(products));
+        product1.setCategory(cat1);
     }
 
     @Test
@@ -80,10 +69,5 @@ class ProductServiceTest {
         when(productRepository.findByProductCode(anyString())).thenReturn(java.util.Optional.ofNullable(product1));
         productService.deleteProduct("8512351");
         assertEquals(cat1.getProducts().size(),1);
-    }
-
-    @Test
-    void saveProduct() {
-
     }
 }

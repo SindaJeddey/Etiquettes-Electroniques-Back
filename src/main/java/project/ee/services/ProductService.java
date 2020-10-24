@@ -13,9 +13,7 @@ import project.ee.exceptions.NotFoundException;
 import project.ee.models.models.Category;
 import project.ee.models.models.Product;
 import project.ee.models.models.Promotion;
-import project.ee.repositories.CategoryRepository;
 import project.ee.repositories.ProductRepository;
-import project.ee.repositories.StoreRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,7 +30,7 @@ public class ProductService {
     private final PromotionDTOToPromotionConverter toPromotionConverter;
     private final PromotionToPromotionDTOConverter toPromotionDTOConverter;
 
-    private static String NOT_FOUND ="%s %d not found";
+    private final static String NOT_FOUND ="%s %d not found";
 
     public ProductService(ProductRepository productRepository,
                           ProductDTOToProductConverter toProductConverter,
@@ -46,9 +44,6 @@ public class ProductService {
         this.toPromotionDTOConverter = toPromotionDTOConverter;
     }
 
-    public Product saveProduct(Product product){
-        return productRepository.save(product);
-    }
 
     public List<ProductDTO> getAllProducts (){
         return  productRepository

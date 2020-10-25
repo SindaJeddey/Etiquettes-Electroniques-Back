@@ -32,7 +32,7 @@ public class Promotion {
     @NotEmpty(message = "Mut provide promo code")
     private String promoCode;
 
-    @NotEmpty(message = "Must provide promotion en date")
+    @NotNull(message = "Must provide promotion en date")
     @FutureOrPresent(message = "Promotion end date must not be in the past")
     private LocalDate promotionEndDate;
 

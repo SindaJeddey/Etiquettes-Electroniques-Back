@@ -36,7 +36,7 @@ public class Tag {
     private InStoreProduct product;
 
     @ManyToOne
-    @NotNull(message = "Must provide the transmitter for the tag")
+    //@NotNull(message = "Must provide the transmitter for the tag")
     private Transmitter transmitter;
 
 }

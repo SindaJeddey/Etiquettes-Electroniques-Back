@@ -43,23 +43,36 @@ public class DataBootstrap implements CommandLineRunner {
                 .name("Product 1")
                 .quantityThreshold(500L)
                 .addedDate(LocalDate.now())
+                .unity("cm")
+                .devise("Dinar")
                 .productCode(RandomStringUtils.randomAlphabetic(10))
+                .longDescription("Long description prod1")
+                .shortDescription("Short description prod1")
+                .image1("image1 prod1")
+                .image2("image2 prod1")
+                .image3("image3 prod1")
                 .build();
 
         Promotion promotion = Promotion.builder()
                 .promotion("20 %")
                 .promotionType("Reduction")
                 .promoCode(RandomStringUtils.randomAlphabetic(10))
-
-                .promotionEndDate(LocalDate.of(2020,10,1))
+                .promotionEndDate(LocalDate.of(2020,12,30))
                 .build();
         product1.addPromotion(promotion);
 
         Product product2 = Product.builder()
                 .name("Product 2")
                 .quantityThreshold(1000L)
-                .productCode(RandomStringUtils.randomAlphabetic(10))
                 .addedDate(LocalDate.now())
+                .unity("l")
+                .devise("Dollar")
+                .productCode(RandomStringUtils.randomAlphabetic(10))
+                .longDescription("Long description prod2")
+                .shortDescription("Short description prod2")
+                .image1("image1 prod2")
+                .image2("image2 prod2")
+                .image3("image3 prod2")
                 .build();
 
         Category cat1 = Category.builder()
@@ -68,8 +81,6 @@ public class DataBootstrap implements CommandLineRunner {
                 .products(new HashSet<>())
                 .build();
         cat1.addProduct(product1);
-        product1.setCategory(cat1);
-        categoryService.saveCategory(cat1);
 
         Category cat2 = Category.builder()
                 .name("Cat 2")
@@ -77,39 +88,34 @@ public class DataBootstrap implements CommandLineRunner {
                 .products(new HashSet<>())
                 .build();
         cat2.addProduct(product2);
-        product2.setCategory(cat2);
-        categoryService.saveCategory(cat2);
-
-        log.info("Loading categories ...");
-
-        log.info("Loading products ...");
 
         Store store1 = Store.builder()
                 .name("Store 1")
-                .location("aouina")
+                .location("Aouina")
                 .zipCode("2045")
                 .storeCode(RandomStringUtils.randomAlphabetic(10))
                 .inStoreProducts(new HashSet<>())
                 .build();
-        storeService.save(store1);
 
         Store store2 = Store.builder()
                 .name("Store 2")
-                .location("lac")
+                .location("Lac1")
                 .storeCode(RandomStringUtils.randomAlphabetic(10))
                 .zipCode("2044")
                 .inStoreProducts(new HashSet<>())
                 .build();
-        storeService.save(store2);
 
         InStoreProduct inStoreProduct = InStoreProduct.builder()
-                .product(product1)
                 .quantity(1500L)
-                .store(store1)
                 .inStoreProductCode(RandomStringUtils.randomAlphabetic(10))
                 .build();
+        product1.addInStoreProduct(inStoreProduct);
+
         Tag tag = Tag.builder()
                 .product(inStoreProduct)
+                .name("Tag1")
+                .type("Tag type1")
+                .tagCode(RandomStringUtils.randomAlphabetic(10))
                 .build();
         inStoreProduct.setTag(tag);
 
@@ -122,10 +128,19 @@ public class DataBootstrap implements CommandLineRunner {
                 .build();
         inStoreProduct.addMovement(movement);
         store1.addInStoreProduct(inStoreProduct);
+
+        categoryService.saveCategory(cat1);
+        categoryService.saveCategory(cat2);
+        log.info("LOADING CATEGORIES ...");
+        log.info("LOADING PRODUCTS ...");
+        log.info("LOADING PROMOTIONS ...");
         storeService.save(store1);
+        storeService.save(store2);
+        log.info("LOADING STORES ...");
+        log.info("LOADING IN STORE PRODUCTS...");
+        log.info("LOADING MOVEMENTS ...");
+        log.info("LOADING TAGS...");
 
-
-        log.info("Loading stores ...");
     }
 
     private void loadUsers() {

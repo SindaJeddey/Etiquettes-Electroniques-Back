@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.validator.constraints.SafeHtml;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -31,4 +32,18 @@ public class Transmitter {
 
     @OneToMany(mappedBy = "transmitter")
     private Set<Tag> tags = new HashSet<>();
+
+    public void addTag (Tag tag){
+        if(this.tags == null)
+            this.tags = new HashSet<>();
+        if(this.tags.contains(tag))
+            this.tags.remove(tag);
+        this.tags.add(tag);
+        tag.setTransmitter(this);
+    }
+
+    public void removeTag(Tag tag){
+        this.tags.remove(tag);
+        tag.setTransmitter(null);
+    }
 }

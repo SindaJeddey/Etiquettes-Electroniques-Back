@@ -37,7 +37,7 @@ public class Store {
 
     @OneToMany(
             orphanRemoval = true,
-            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE,CascadeType.PERSIST},
             mappedBy = "store")
     private Set<InStoreProduct> inStoreProducts;
 

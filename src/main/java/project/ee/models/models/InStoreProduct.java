@@ -41,7 +41,7 @@ public class InStoreProduct {
     private String inStoreProductCode;
 
     @OneToOne(
-            cascade = {CascadeType.MERGE, CascadeType.REMOVE},
+            cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REMOVE},
             orphanRemoval = true,
             mappedBy = "product")
     @NotNull(message = "Must provide a tag for the product in store")

@@ -7,7 +7,7 @@ import project.ee.dto.category.CategoryDTOToCategoryConverter;
 import project.ee.dto.category.CategoryToCategoryDTOConverter;
 import project.ee.dto.product.ProductDTO;
 import project.ee.dto.product.ProductToProductDTOConverter;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
 import project.ee.models.models.Category;
 import project.ee.repositories.CategoryRepository;
 
@@ -52,28 +52,21 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public List<String> getAllCategoriesNames() {
-        return categoryRepository.findAll()
-                .stream()
-                .map(Category::getName)
-                .collect(Collectors.toList());
-    }
-
-    public CategoryDTO getCategory(String id) throws NotFoundException {
+    public CategoryDTO getCategory(String id) throws ResourceNotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-            .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         return toCategoryDTOConverter.convert(category);
     }
 
-    public void deleteCategory(String id) throws NotFoundException {
+    public void deleteCategory(String id) throws ResourceNotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         categoryRepository.delete(category);
     }
 
-    public CategoryDTO getProducts(String id) throws NotFoundException {
+    public CategoryDTO getProducts(String id) throws ResourceNotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         Set<ProductDTO> dtoSet = category.getProducts()
                 .stream()
                 .map(toProductDTOConverter::convert)
@@ -83,9 +76,9 @@ public class CategoryService {
         return categoryDTO;
     }
 
-    public CategoryDTO updateCategory(String id, CategoryDTO categoryDTO) throws NotFoundException {
+    public CategoryDTO updateCategory(String id, CategoryDTO categoryDTO) throws ResourceNotFoundException {
         Category category = categoryRepository.findByCategoryCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         if(categoryDTO.getName() != null)
             category.setName(categoryDTO.getName());
         Category saved = categoryRepository.save(category);

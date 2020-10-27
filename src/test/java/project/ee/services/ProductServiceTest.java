@@ -7,20 +7,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import project.ee.dto.product.ProductDTO;
-import project.ee.dto.product.ProductDTOToProductConverter;
 import project.ee.dto.product.ProductToProductDTOConverter;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
 import project.ee.models.models.Category;
 import project.ee.models.models.Product;
-import project.ee.models.models.Store;
-import project.ee.repositories.CategoryRepository;
 import project.ee.repositories.ProductRepository;
-import project.ee.repositories.StoreRepository;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -65,9 +60,9 @@ class ProductServiceTest {
     }
 
     @Test
-    void deleteProduct() throws NotFoundException {
+    void deleteProduct() throws ResourceNotFoundException {
         when(productRepository.findByProductCode(anyString())).thenReturn(java.util.Optional.ofNullable(product1));
         productService.deleteProduct("8512351");
-        assertEquals(cat1.getProducts().size(),1);
+        assertEquals(1,cat1.getProducts().size());
     }
 }

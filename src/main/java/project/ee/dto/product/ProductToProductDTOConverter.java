@@ -15,7 +15,7 @@ public class ProductToProductDTOConverter implements Converter<Product, ProductD
         ProductDTO dto = new ProductDTO();
         dto.setProductCode(product.getProductCode());
         dto.setName(product.getName());
-        dto.setCategory(product.getCategory().getName());
+        dto.setCategory(product.getCategory().getCategoryCode());
         dto.setQuantityThreshold(product.getQuantityThreshold());
         dto.setAddedDate(product.getAddedDate());
         dto.setLastModificationDate(product.getLastModificationDate());

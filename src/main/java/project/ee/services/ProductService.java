@@ -9,10 +9,12 @@ import project.ee.dto.product.ProductToProductDTOConverter;
 import project.ee.dto.promotion.PromotionDTO;
 import project.ee.dto.promotion.PromotionDTOToPromotionConverter;
 import project.ee.dto.promotion.PromotionToPromotionDTOConverter;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
+import project.ee.exceptions.ResourceNotValidException;
 import project.ee.models.models.Category;
 import project.ee.models.models.Product;
 import project.ee.models.models.Promotion;
+import project.ee.repositories.CategoryRepository;
 import project.ee.repositories.ProductRepository;
 
 import java.time.LocalDate;
@@ -25,26 +27,32 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductDTOToProductConverter toProductConverter;
     private final ProductToProductDTOConverter toProductDTOConverter;
     private final PromotionDTOToPromotionConverter toPromotionConverter;
     private final PromotionToPromotionDTOConverter toPromotionDTOConverter;
 
-    private final static String NOT_FOUND ="%s %d not found";
+    private static final String NOT_FOUND ="%s %d not found";
 
     public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository,
                           ProductDTOToProductConverter toProductConverter,
                           ProductToProductDTOConverter toProductDTOConverter,
                           PromotionDTOToPromotionConverter toPromotionConverter,
                           PromotionToPromotionDTOConverter toPromotionDTOConverter) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.toProductConverter = toProductConverter;
         this.toProductDTOConverter = toProductDTOConverter;
         this.toPromotionConverter = toPromotionConverter;
         this.toPromotionDTOConverter = toPromotionDTOConverter;
     }
 
-
+    private Product fetchProduct(String id){
+        return productRepository.findByProductCode(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,"Product",id)));
+    }
     public List<ProductDTO> getAllProducts (){
         return  productRepository
                 .findAll()
@@ -53,9 +61,8 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public ProductDTO getProduct(String id) throws NotFoundException {
-        Product product = productRepository.findByProductCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Product",id)));
+    public ProductDTO getProduct(String id) throws ResourceNotFoundException {
+        Product product = fetchProduct(id);
         return toProductDTOConverter.convert(product);
     }
 
@@ -65,7 +72,7 @@ public class ProductService {
         toSave.setProductCode(RandomStringUtils.randomAlphabetic(10));
         toSave.setLastModificationDate(LocalDate.now());
         if (toSave.getCategory() == null)
-            throw new RuntimeException("Must provide a category for this product");
+            throw new ResourceNotValidException("Must provide a category code");
         else {
             Product saved = productRepository.save(toSave);
             saved.getCategory().addProduct(saved);
@@ -73,31 +80,31 @@ public class ProductService {
         }
     }
 
-    public ProductDTO updateProduct(String id, ProductDTO productDTO) throws NotFoundException {
-        Product productToUpdate = productRepository.findByProductCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Product",id)));
-        Product updates = toProductConverter.convert(productDTO);
+    public ProductDTO updateProduct(String id, ProductDTO productDTO) throws ResourceNotFoundException {
+        Product productToUpdate = fetchProduct(id);
         ProductDTO updatedDto;
-        if(updates.getName() != null)
-            productToUpdate.setName(updates.getName());
-        if(updates.getLongDescription() != null) {
-            productToUpdate.setLongDescription(updates.getLongDescription());
+        if(productDTO.getName() != null)
+            productToUpdate.setName(productDTO.getName());
+        if(productDTO.getLongDescription() != null) {
+            productToUpdate.setLongDescription(productDTO.getLongDescription());
         }
-        if(updates.getShortDescription() != null) {
-            productToUpdate.setShortDescription(updates.getShortDescription());
+        if(productDTO.getShortDescription() != null) {
+            productToUpdate.setShortDescription(productDTO.getShortDescription());
         }
-        if(updates.getUnity() != null) {
-            productToUpdate.setUnity(updates.getUnity());
+        if(productDTO.getUnity() != null) {
+            productToUpdate.setUnity(productDTO.getUnity());
         }
-        if(updates.getDevise() != null) {
-            productToUpdate.setDevise(updates.getDevise());
+        if(productDTO.getDevise() != null) {
+            productToUpdate.setDevise(productDTO.getDevise());
         }
-        if(updates.getQuantityThreshold() != null) {
-            productToUpdate.setQuantityThreshold(updates.getQuantityThreshold());
+        if(productDTO.getQuantityThreshold() != null) {
+            productToUpdate.setQuantityThreshold(productDTO.getQuantityThreshold());
         }
         productToUpdate.setLastModificationDate(LocalDate.now());
-        if(updates.getCategory() != null){
-            productToUpdate.setCategory(updates.getCategory());
+        if(productDTO.getCategory() != null){
+            Category category = categoryRepository.findByCategoryCode(productDTO.getCategory())
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,"Category",productDTO.getCategory())));
+            productToUpdate.setCategory(category);
         }
         Product saved = productRepository.save(productToUpdate);
         saved.getCategory().addProduct(saved);
@@ -105,29 +112,24 @@ public class ProductService {
         return updatedDto;
     }
 
-    public void deleteProduct(String id) throws NotFoundException {
-        Product product = productRepository.findByProductCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Product",id)));
+    public void deleteProduct(String id) throws ResourceNotFoundException {
+        Product product = fetchProduct(id);
         Category category = product.getCategory();
         category.removeProduct(product);
-        productRepository.delete(product); //see if this instruction is needed
+        productRepository.delete(product);
     }
 
-    public void addPromotion(String id, PromotionDTO promotionDTO) throws NotFoundException {
-        if (id == null)
-            throw new RuntimeException("Must provide product to add promotion to");
+    public void addPromotion(String id, PromotionDTO promotionDTO) throws ResourceNotFoundException {
         if(this.getCurrentPromotion(id) == null){
-            Product product = productRepository.findByProductCode(id)
-                    .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Product",id)));
+            Product product = fetchProduct(id);
             Promotion promotion = toPromotionConverter.convert(promotionDTO);
             product.addPromotion(promotion);
             productRepository.save(product);
         }
     }
 
-    public PromotionDTO getCurrentPromotion(String id) throws NotFoundException {
-        Product product = productRepository.findByProductCode(id)
-                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND,"Product",id)));
+    public PromotionDTO getCurrentPromotion(String id) throws ResourceNotFoundException {
+        Product product = fetchProduct(id);
         Optional<Promotion> promo = product.getPromotions()
                 .stream()
                 .filter(promotion -> promotion.getPromotionEndDate().isAfter(LocalDate.now()))

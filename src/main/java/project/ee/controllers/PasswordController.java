@@ -4,7 +4,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.password.PasswordDTO;
 import project.ee.dto.user.UserDTO;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
+import project.ee.exceptions.ResourceNotValidException;
 import project.ee.models.notificationEmail.NotificationEmail;
 import project.ee.services.MailSendingService;
 import project.ee.services.PasswordResetService;
@@ -13,9 +14,11 @@ import project.ee.services.UserService;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/password")
+@RequestMapping(PasswordController.BASE_URI)
 @PreAuthorize("permitAll()")
 public class PasswordController {
+
+    public static final String BASE_URI="/api/password";
 
     private final UserService userService;
     private final PasswordResetService passwordResetService;
@@ -30,7 +33,7 @@ public class PasswordController {
     }
 
     @PutMapping("/token")
-    public PasswordDTO passwordResetLink (@RequestBody PasswordDTO passwordDTO) throws NotFoundException {
+    public PasswordDTO passwordResetLink (@RequestBody PasswordDTO passwordDTO) throws ResourceNotFoundException {
         if (passwordDTO == null)
             throw new IllegalArgumentException("Must provide an email");
         String token = UUID.randomUUID().toString();
@@ -49,12 +52,12 @@ public class PasswordController {
     }
 
     @PutMapping("/reset")
-    public String passwordReset (@RequestBody PasswordDTO passwordDTO) throws NotFoundException {
+    public String passwordReset (@RequestBody PasswordDTO passwordDTO) throws ResourceNotFoundException {
         if (passwordDTO == null)
             throw new IllegalArgumentException("Must provide a new password");
         String validity = passwordResetService.validateToken(passwordDTO.getToken());
         if (validity.equals("INVALID") || validity.equals("EXPIRED"))
-            throw new RuntimeException("Token "+validity);
+            throw new ResourceNotValidException("Token "+validity);
         else {
             String email = passwordResetService.findToken(passwordDTO.getToken()).getUser().getEmail();
             UserDTO dto = userService.userPasswordReset(email,passwordDTO.getNewPassword());

@@ -1,9 +1,9 @@
 package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.movement.MovementDTO;
-import project.ee.exceptions.NotFoundException;
 import project.ee.services.MovementService;
 
 import java.util.Set;
@@ -11,6 +11,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/transactions")
 @PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN','ROLE_SUPER_OPERATOR')")
+@Validated
 public class MovementController {
     private final MovementService movementService;
 
@@ -19,12 +20,12 @@ public class MovementController {
     }
 
     @PutMapping("/add")
-    public void addTransaction (@RequestBody MovementDTO movementDTO) throws NotFoundException {
+    public void addTransaction (@RequestBody MovementDTO movementDTO){
         movementService.addMovement(movementDTO);
     }
 
     @GetMapping("/{productId}")
-    public Set<MovementDTO> getTransactions(@PathVariable String productId) throws NotFoundException {
+    public Set<MovementDTO> getTransactions(@PathVariable String productId){
         return movementService.getMovements(productId);
     }
 }

@@ -1,21 +1,24 @@
 package project.ee.controllers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.user.UserDTO;
-import project.ee.exceptions.NotFoundException;
 import project.ee.models.notificationEmail.NotificationEmail;
 import project.ee.models.authentication.UserRoles;
 import project.ee.services.MailSendingService;
 import project.ee.services.UserService;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/operators")
-@Slf4j
+@RequestMapping(OperatorController.BASE_URI)
+@Validated
 public class OperatorController {
+
+    public static final String BASE_URI="/api/operators";
 
     private final UserService userService;
     private final MailSendingService mailSendingService;
@@ -34,7 +37,7 @@ public class OperatorController {
 
     @GetMapping("/{username}")
     @PreAuthorize("permitAll()")
-    public UserDTO getOperator(@PathVariable String username) throws NotFoundException {
+    public UserDTO getOperator(@PathVariable String username) {
         return userService.getUser(username, UserRoles.OPERATOR.name());
     }
 
@@ -47,8 +50,6 @@ public class OperatorController {
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newOperator(@RequestBody UserDTO dto){
-        if (dto == null)
-            throw new IllegalArgumentException("Must provide a user to save");
         UserDTO savedDto = userService.saveNewUser(dto,UserRoles.OPERATOR.name());
         NotificationEmail email = new NotificationEmail(
                 "Account Activation",
@@ -63,10 +64,8 @@ public class OperatorController {
 
     @PutMapping("/{username}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public UserDTO updateOperatorRole (@PathVariable String username, @RequestBody UserDTO userDTO )
-            throws NotFoundException {
-        if (userDTO == null)
-            throw new IllegalArgumentException("Must provide a user to save");
+    public UserDTO updateOperatorRole (@PathVariable @NotEmpty String username,
+                                       @RequestBody @NotNull UserDTO userDTO ){
         UserDTO updatedDto = userService.updateUserRole(username,userDTO);
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
@@ -82,11 +81,9 @@ public class OperatorController {
     @PutMapping("/update/{username}")
     @PreAuthorize("hasAuthority('ROLE_OPERATOR')")
     public UserDTO updateOperator(@PathVariable String username,
-                                  @RequestBody UserDTO userDTO) throws NotFoundException {
-        if (userDTO == null)
-            throw new IllegalArgumentException("Must provide a user to save");
+                                  @RequestBody UserDTO userDTO) {
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.OPERATOR.name());
-        NotificationEmail account_modification = new NotificationEmail(
+        NotificationEmail accountModification = new NotificationEmail(
                 "Account Modification",
                 dto.getEmail(),
                 String.format("Dear %s %s,\nYour account has been modified." +
@@ -97,14 +94,14 @@ public class OperatorController {
                         dto.getLastName(),dto.getUsername(),
                         dto.getPassword(),dto.getEmail(),dto.getBirthday())
         );
-        mailSendingService.sendMail(account_modification);
+        mailSendingService.sendMail(accountModification);
         dto.setPassword(null);
         return dto;
     }
 
     @DeleteMapping("/{username}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void deleteOperator(@PathVariable String username) throws NotFoundException {
+    public void deleteOperator(@PathVariable String username){
         userService.deleteUser(username,UserRoles.OPERATOR.name());
     }
 }

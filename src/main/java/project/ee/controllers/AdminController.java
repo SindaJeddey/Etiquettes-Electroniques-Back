@@ -1,9 +1,9 @@
 package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.user.UserDTO;
-import project.ee.exceptions.NotFoundException;
 import project.ee.models.authentication.UserRoles;
 import project.ee.models.notificationEmail.NotificationEmail;
 import project.ee.services.MailSendingService;
@@ -12,9 +12,13 @@ import project.ee.services.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admins")
+@RequestMapping(AdminController.BASE_URI)
 @PreAuthorize("permitAll()")
+@Validated
 public class AdminController {
+
+    public static final String BASE_URI="/api/admins";
+
     private final UserService userService;
     private final MailSendingService mailSendingService;
 
@@ -32,7 +36,7 @@ public class AdminController {
 
     @GetMapping("/{username}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public UserDTO getAdmin(@PathVariable String username) throws NotFoundException {
+    public UserDTO getAdmin(@PathVariable String username) {
         return userService.getUser(username, UserRoles.ADMIN.name());
     }
 
@@ -45,8 +49,6 @@ public class AdminController {
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newAdmin(@RequestBody UserDTO dto){
-        if (dto == null)
-            throw new IllegalArgumentException("Must provide a user to save");
         UserDTO savedDto = userService.saveNewUser(dto,UserRoles.ADMIN.name());
         NotificationEmail email = new NotificationEmail(
                 "Account Activation",
@@ -62,11 +64,9 @@ public class AdminController {
     @PutMapping("/update/{username}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO updateAdmin(@PathVariable String username,
-                               @RequestBody UserDTO userDTO) throws NotFoundException {
-        if (userDTO == null)
-            throw new IllegalArgumentException("Must provide a user to save");
+                               @RequestBody UserDTO userDTO){
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.ADMIN.name());
-        NotificationEmail account_modification = new NotificationEmail(
+        NotificationEmail accountModification = new NotificationEmail(
                 "Account Modification",
                 dto.getEmail(),
                 String.format("Dear %s %s,\nYour account has been modified." +
@@ -77,7 +77,7 @@ public class AdminController {
                         dto.getLastName(),dto.getUsername(),
                         dto.getPassword(),dto.getEmail(),dto.getBirthday())
         );
-        mailSendingService.sendMail(account_modification);
+        mailSendingService.sendMail(accountModification);
         dto.setPassword(null);
         return dto;
     }

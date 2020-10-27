@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.util.Converter;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import project.ee.dto.inStoreProduct.InStoreProductDTOToInStoreProductConverter;
-import project.ee.exceptions.NotFoundException;
-import project.ee.models.models.InStoreProduct;
 import project.ee.models.models.Movement;
 
 @Component

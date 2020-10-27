@@ -13,7 +13,8 @@ import project.ee.dto.product.ProductToProductDTOConverter;
 import project.ee.dto.store.StoreDTO;
 import project.ee.dto.store.StoreDTOToStoreConverter;
 import project.ee.dto.store.StoreToStoreDTOConverter;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
+import project.ee.exceptions.ResourceNotValidException;
 import project.ee.models.models.*;
 import project.ee.repositories.*;
 
@@ -31,7 +32,6 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
     private final InStoreProductRepository inStoreProductRepository;
-    private final MovementRepository movementRepository;
     private final StoreDTOToStoreConverter toStoreConverter;
     private final StoreToStoreDTOConverter toStoreDTOConverter;
     private final InStoreProductDTOToInStoreProductConverter toInStoreProductConverter;
@@ -42,7 +42,6 @@ public class StoreService {
     public StoreService(StoreRepository storeRepository,
                         ProductRepository productRepository,
                         InStoreProductRepository inStoreProductRepository,
-                        MovementRepository movementRepository,
                         StoreDTOToStoreConverter toStoreConverter,
                         StoreToStoreDTOConverter toStoreDTOConverter,
                         InStoreProductDTOToInStoreProductConverter toInStoreProductConverter,
@@ -52,7 +51,6 @@ public class StoreService {
         this.storeRepository = storeRepository;
         this.productRepository = productRepository;
         this.inStoreProductRepository = inStoreProductRepository;
-        this.movementRepository = movementRepository;
         this.toStoreConverter = toStoreConverter;
         this.toStoreDTOConverter = toStoreDTOConverter;
         this.toInStoreProductConverter = toInStoreProductConverter;
@@ -61,9 +59,9 @@ public class StoreService {
         this.toMovementConverter = toMovementConverter;
     }
 
-    private Store fetchStore(String  id) throws NotFoundException {
+    private Store fetchStore(String  id) throws ResourceNotFoundException {
         return storeRepository.findByStoreCode(id)
-                .orElseThrow(() -> new NotFoundException("Store id: " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Store id: " + id + " not found"));
     }
 
     public Store save(Store store){
@@ -77,7 +75,7 @@ public class StoreService {
                 .collect(Collectors.toList());
     }
 
-    public StoreDTO getStore(String id) throws NotFoundException {
+    public StoreDTO getStore(String id) throws ResourceNotFoundException {
         Store store = fetchStore(id);
         return toStoreDTOConverter.convert(store);
     }
@@ -89,12 +87,12 @@ public class StoreService {
         return toStoreDTOConverter.convert(saved);
     }
 
-    public void deleteStore(String id) throws NotFoundException {
+    public void deleteStore(String id) throws ResourceNotFoundException {
         Store store = fetchStore(id);
         storeRepository.delete(store);
     }
 
-    public StoreDTO updateStore(String id, StoreDTO storeDTO) throws NotFoundException {
+    public StoreDTO updateStore(String id, StoreDTO storeDTO) throws ResourceNotFoundException {
         Store store = fetchStore(id);
         if(storeDTO.getName() != null)
             store.setName(storeDTO.getName());
@@ -106,38 +104,42 @@ public class StoreService {
         return toStoreDTOConverter.convert(saved);
     }
 
-    public Set<InStoreProductDTO> addProduct(String storeId, MovementDTO movementDTO) throws NotFoundException {
+    public InStoreProductDTO addProduct(String storeId, MovementDTO movementDTO) throws ResourceNotFoundException {
         if (!movementDTO.getType().equals(MovementType.IN.name()))
-            throw new RuntimeException("Invalid Transaction");
+            throw new ResourceNotValidException("Invalid Transaction");
 
         if (!movementDTO.getProduct().getStore().getStoreCode().equals(storeId))
-            throw new RuntimeException("Incompatible stores");
+            throw new ResourceNotFoundException("Incompatible stores");
 
         Store store = fetchStore(storeId);
         InStoreProduct inStoreProduct = toInStoreProductConverter.convert(movementDTO.getProduct());
-        if(inStoreProduct.getProduct() == null)
-            throw new RuntimeException("Must provide product to add to store");
+        if(inStoreProduct.getProduct() == null ||
+                inStoreProduct.getProduct().getProductCode() == null ||
+                inStoreProduct.getProduct().getProductCode().isEmpty() )
+            throw new ResourceNotFoundException("Must provide product to add to store");
 
         Optional<Product> product = productRepository.findByProductCode(inStoreProduct.getProduct().getProductCode());
         if(!product.isPresent())
-            throw new NotFoundException("Product non existing");
+            throw new ResourceNotFoundException("Product code:"+inStoreProduct.getProduct().getProductCode()+"non existing");
 
         boolean productExisting = store.getInStoreProducts()
                 .stream()
                 .anyMatch(inStoreProduct1 ->
                         inStoreProduct1.getProduct().equals(inStoreProduct.getProduct()));
+
         if(productExisting) {
-            throw new RuntimeException("Product exists in store");
+            throw new ResourceNotValidException("Product already exists in store");
         }
 
         inStoreProduct.setStore(store);
         inStoreProduct.setProduct(product.get());
         inStoreProduct.setInStoreProductCode(RandomStringUtils.randomAlphabetic(10));
         inStoreProduct.setQuantity(movementDTO.getQuantity());
-        if(inStoreProduct.getQuantity() <= inStoreProduct.getProduct().getQuantityThreshold())
+        if (inStoreProduct.getQuantity() <= inStoreProduct.getProduct().getQuantityThreshold()) {
             inStoreProduct.setAlertThreshold(true);
-        else
+        } else {
             inStoreProduct.setAlertThreshold(false);
+        }
         Movement movement = toMovementConverter.convert(movementDTO);
         movement.setMovementDate(LocalDate.now());
         movement.setProduct(inStoreProduct);
@@ -151,42 +153,37 @@ public class StoreService {
         tag.setProduct(inStoreProduct);
         store.addInStoreProduct(inStoreProduct);
 
-        Store saved = storeRepository.save(store);
+        storeRepository.save(store);
 
-        return saved.getInStoreProducts()
-                .stream()
-                .map(toInStoreProductDTOConverter::convert)
-                .collect(Collectors.toSet());
+        return toInStoreProductDTOConverter.convert(inStoreProduct);
     }
 
-    public Set<InStoreProductDTO> removeProduct(String storeId, MovementDTO movementDTO) throws NotFoundException {
+    public InStoreProductDTO removeProduct(String storeId, MovementDTO movementDTO) throws ResourceNotFoundException {
         if (!movementDTO.getType().equals(MovementType.OUT.name()))
-            throw new RuntimeException("Invalid Transaction");
+            throw new ResourceNotValidException("Invalid Transaction");
 
         if (!movementDTO.getProduct().getStore().getStoreCode().equals(storeId))
-            throw new RuntimeException("Incompatible stores");
+            throw new ResourceNotValidException("Incompatible stores");
 
         Store store = fetchStore(storeId);
-        InStoreProduct inStoreProduct = toInStoreProductConverter.convert(movementDTO.getProduct());
-        if(inStoreProduct == null)
-            throw new RuntimeException("Must provide product to remove from store");
+        if(movementDTO.getProduct() == null ) {
+            throw new ResourceNotValidException("Must provide product to remove from store");
+        }
 
+        InStoreProduct inStoreProduct = toInStoreProductConverter.convert(movementDTO.getProduct());
         InStoreProduct finalInStoreProduct = inStoreProductRepository.findByInStoreProductCode(inStoreProduct.getInStoreProductCode())
-                .orElseThrow(()-> new NotFoundException("In store product id:"+inStoreProduct.getId()+" not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("In store product id:"+inStoreProduct.getId()+" not found"));
         store.removeInStoreProduct(finalInStoreProduct);
         Product product = finalInStoreProduct.getProduct();
         product.removeInStoreProduct(finalInStoreProduct);
-        inStoreProductRepository.delete(inStoreProduct);
+        inStoreProductRepository.delete(finalInStoreProduct);
         productRepository.save(product);
-        Store saved = storeRepository.save(store);
+        storeRepository.save(store);
 
-        return saved.getInStoreProducts()
-                .stream()
-                .map(toInStoreProductDTOConverter::convert)
-                .collect(Collectors.toSet());
+        return toInStoreProductDTOConverter.convert(inStoreProduct);
     }
 
-    public StoreDTO fetchInStoreProducts(String id) throws NotFoundException {
+    public StoreDTO fetchInStoreProducts(String id) throws ResourceNotFoundException {
         Store store = fetchStore(id);
         Set<InStoreProductDTO> productDTOS = store.getInStoreProducts()
                 .stream()
@@ -197,11 +194,11 @@ public class StoreService {
         return dto;
     }
 
-    public StoreDTO fetchCategoryInStoreProducts(String id, Long categoryId) throws NotFoundException {
+    public StoreDTO fetchCategoryInStoreProducts(String id, String categoryId) throws ResourceNotFoundException {
         Store store = fetchStore(id);
         Set<InStoreProductDTO> productDTOS = store.getInStoreProducts()
                 .stream()
-                .filter(inStoreProduct -> inStoreProduct.getCategory().getId().equals(categoryId))
+                .filter(inStoreProduct -> inStoreProduct.getCategory().getCategoryCode().equals(categoryId))
                 .map(toInStoreProductDTOConverter::convert)
                 .collect(Collectors.toSet());
         StoreDTO dto = toStoreDTOConverter.convert(store);
@@ -212,25 +209,26 @@ public class StoreService {
     public Set<String> getAllLocations() {
         return storeRepository.findAll()
                 .stream()   
-                .map(store -> store.getLocation())
+                .map(Store::getLocation)
                 .collect(Collectors.toSet());
     }
 
     public List<StoreDTO> getAllStoresByLocation(String location) {
         return storeRepository.findAllByLocation(location)
-                .stream().map(toStoreDTOConverter::convert)
+                .stream()
+                .map(toStoreDTOConverter::convert)
                 .collect(Collectors.toList());
     }
 
-    public Set<ProductDTO> getBelowThreshold(String id) throws NotFoundException {
+    public Set<ProductDTO> getBelowThreshold(String id) throws ResourceNotFoundException {
         Store store = fetchStore(id);
         return store.getInStoreProducts()
-                .stream().filter(inStoreProduct -> inStoreProduct.isAlertThreshold())
+                .stream().filter(InStoreProduct::isAlertThreshold)
                 .map(inStoreProduct -> toProductDTOConverter.convert(inStoreProduct.getProduct()))
                 .collect(Collectors.toSet());
     }
 
-    public InStoreProductDTO fetchInStoreProduct(String storeId, String productId) throws NotFoundException {
+    public InStoreProductDTO fetchInStoreProduct(String storeId, String productId) throws ResourceNotFoundException {
         Store store = fetchStore(storeId);
         Optional<InStoreProduct> inStoreProduct = store.getInStoreProducts()
                 .stream()
@@ -240,11 +238,7 @@ public class StoreService {
         if(inStoreProduct.isPresent())
             return toInStoreProductDTOConverter.convert(inStoreProduct.get());
         else {
-            Product product = productRepository.findByProductCode(productId)
-                    .orElseThrow(() -> new NotFoundException("Product "+productId+" not found"));
-            return InStoreProductDTO.builder()
-                    .product(toProductDTOConverter.convert(product))
-                    .build();
+            throw new ResourceNotFoundException("Product not in store");
         }
     }
 }

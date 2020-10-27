@@ -1,9 +1,9 @@
 package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.user.UserDTO;
-import project.ee.exceptions.NotFoundException;
 import project.ee.models.notificationEmail.NotificationEmail;
 import project.ee.models.authentication.UserRoles;
 import project.ee.services.MailSendingService;
@@ -12,9 +12,11 @@ import project.ee.services.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/super-operators")
+@RequestMapping(SuperOperatorController.BASE_URI)
+@Validated
 public class SuperOperatorController {
 
+    public static final String BASE_URI="/api/super-operators";
     private final UserService userService;
     private final MailSendingService mailSendingService;
 
@@ -33,7 +35,7 @@ public class SuperOperatorController {
 
     @GetMapping("/{username}")
     @PreAuthorize("permitAll()")
-    public UserDTO getSuperOperator(@PathVariable String username) throws NotFoundException {
+    public UserDTO getSuperOperator(@PathVariable String username){
         return userService.getUser(username, UserRoles.SUPER_OPERATOR.name());
     }
 
@@ -46,8 +48,6 @@ public class SuperOperatorController {
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newSuperOperator(@RequestBody UserDTO dto){
-        if (dto == null)
-            throw new IllegalArgumentException("Must provide a user to save");
         UserDTO savedDto = userService.saveNewUser(dto,UserRoles.SUPER_OPERATOR.name());
         NotificationEmail email = new NotificationEmail(
                 "Account Activation",
@@ -62,10 +62,7 @@ public class SuperOperatorController {
 
     @PutMapping("/{username}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public UserDTO updateSuperOperatorRole (@PathVariable String username, @RequestBody UserDTO userDTO )
-            throws NotFoundException {
-        if (userDTO == null)
-            throw new IllegalArgumentException("Must provide a user to update");
+    public UserDTO updateSuperOperatorRole (@PathVariable String username, @RequestBody UserDTO userDTO ){
         UserDTO updatedDto = userService.updateUserRole(username,userDTO);
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
@@ -81,9 +78,7 @@ public class SuperOperatorController {
     @PutMapping("/update/{username}")
     @PreAuthorize("hasAuthority('ROLE_SUPER_OPERATOR')")
     public UserDTO updateSuperOperator(@PathVariable String username,
-                                  @RequestBody UserDTO userDTO) throws NotFoundException {
-        if (userDTO == null)
-            throw new IllegalArgumentException("Must provide a user to save");
+                                  @RequestBody UserDTO userDTO){
         UserDTO dto =  userService.updateUser(username,userDTO,UserRoles.SUPER_OPERATOR.name());
         NotificationEmail email = new NotificationEmail(
                 "Account Modification",
@@ -103,7 +98,7 @@ public class SuperOperatorController {
 
     @DeleteMapping("/{username}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public void deleteSuperOperator(@PathVariable String username) throws NotFoundException {
+    public void deleteSuperOperator(@PathVariable String username){
         userService.deleteUser(username,UserRoles.SUPER_OPERATOR.name());
     }
 

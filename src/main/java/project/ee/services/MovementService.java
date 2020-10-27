@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service;
 import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.movement.MovementDTOToMovementConverter;
 import project.ee.dto.movement.MovementToMovementDTOConverter;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
+import project.ee.exceptions.ResourceNotValidException;
 import project.ee.models.models.InStoreProduct;
 import project.ee.models.models.Movement;
 import project.ee.models.models.MovementType;
 import project.ee.repositories.InStoreProductRepository;
-import project.ee.repositories.MovementRepository;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -19,51 +19,52 @@ import java.util.stream.Collectors;
 @Service
 public class MovementService {
 
-    private final MovementRepository movementRepository;
     private final MovementToMovementDTOConverter toMovementDTOConverter;
     private final MovementDTOToMovementConverter toMovementConverter;
     private final InStoreProductRepository inStoreProductRepository;
 
-    public MovementService(MovementRepository movementRepository,
-                           MovementToMovementDTOConverter toMovementDTOConverter,
+    public MovementService(MovementToMovementDTOConverter toMovementDTOConverter,
                            MovementDTOToMovementConverter toMovementConverter,
                            InStoreProductRepository inStoreProductRepository) {
-        this.movementRepository = movementRepository;
         this.toMovementDTOConverter = toMovementDTOConverter;
         this.toMovementConverter = toMovementConverter;
         this.inStoreProductRepository = inStoreProductRepository;
     }
 
-    public Set<MovementDTO> getMovements(String productId) throws NotFoundException {
+    public Set<MovementDTO> getMovements(String productId) throws ResourceNotFoundException {
         InStoreProduct inStoreProduct = inStoreProductRepository.findByInStoreProductCode(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found: "+productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product in store not found: "+productId));
         return inStoreProduct.getMovements()
                 .stream()
                 .map(toMovementDTOConverter::convert)
                 .collect(Collectors.toSet());
     }
 
-    public void addMovement(MovementDTO movementDTO) throws NotFoundException {
+    public void addMovement(MovementDTO movementDTO) throws ResourceNotFoundException {
         if(!movementDTO.getType().equals(MovementType.OUT.name())
                 && !movementDTO.getType().equals(MovementType.IN.name())){
-            throw new RuntimeException("Invalid transaction");
+            throw new ResourceNotValidException("Invalid transaction");
         }
-        if(movementDTO.getProduct().getStore() == null || movementDTO.getProduct().getStore().getStoreCode() == null)
-            throw new RuntimeException("Must provide the store");
+        if(movementDTO.getProduct().getStore() == null ||
+                movementDTO.getProduct().getStore().getStoreCode() == null ||
+                movementDTO.getProduct().getStore().getStoreCode().isEmpty() )
+            throw new ResourceNotValidException("Must provide the store");
 
-        if(movementDTO.getProduct() == null || movementDTO.getProduct().getInStoreProductCode() == null) {
-            throw new RuntimeException("Must provide a product");
+        if(movementDTO.getProduct() == null ||
+                movementDTO.getProduct().getInStoreProductCode() == null ||
+                movementDTO.getProduct().getInStoreProductCode().isEmpty())  {
+            throw new ResourceNotValidException("Must provide a product");
         }
 
         if(movementDTO.getQuantity() == null ||movementDTO.getQuantity() < 0)
-            throw new RuntimeException("Must provide a valid quantity");
-
+            throw new ResourceNotValidException("Must provide a valid quantity");
 
         Movement movement = toMovementConverter.convert(movementDTO);
         movement.setMovementDate(LocalDate.now());
         movement.setMovementCode(RandomStringUtils.randomAlphabetic(10));
         InStoreProduct inStoreProduct = inStoreProductRepository.findByInStoreProductCode(movementDTO.getProduct().getInStoreProductCode())
-                .orElseThrow(() -> new NotFoundException("Product in store id: "+movementDTO.getProduct().getInStoreProductCode()+" not found"));
+                .filter(inStoreProduct1 -> inStoreProduct1.getStore().getStoreCode().equals(movementDTO.getProduct().getStore().getStoreCode()))
+                .orElseThrow(() -> new ResourceNotFoundException("Product in store id: "+movementDTO.getProduct().getInStoreProductCode()+" not found"));
         if(movement.getType().equals(MovementType.OUT.name()))
             inStoreProduct.setQuantity(inStoreProduct.getQuantity()-movement.getQuantity());
         else

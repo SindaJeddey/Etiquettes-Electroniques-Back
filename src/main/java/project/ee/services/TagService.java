@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import project.ee.dto.tag.TagDTO;
 import project.ee.dto.tag.TagToTagDTOConverter;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotFoundException;
 import project.ee.models.models.Tag;
 import project.ee.repositories.TagRepository;
 
@@ -23,27 +23,27 @@ public class TagService {
         this.toTagDTOConverter = toTagDTOConverter;
     }
 
-    public TagDTO getTag(Long id) throws NotFoundException {
-        Tag tag =  tagRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Tag id: "+id+" not found"));
+    public TagDTO getTag(String id) throws ResourceNotFoundException {
+        Tag tag =  tagRepository.findByTagCode(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag id: "+id+" not found"));
         return toTagDTOConverter.convert(tag);
     }
 
-    public Set<TagDTO> getStoreTags(Long storeId) throws NotFoundException {
+    public Set<TagDTO> getStoreTags(String storeId) throws ResourceNotFoundException {
         return tagRepository.findAll()
-                .stream().filter(tag -> tag.getProduct().getStore().getId().equals(storeId))
+                .stream().filter(tag -> tag.getProduct().getStore().getStoreCode().equals(storeId))
                 .map(toTagDTOConverter::convert)
                 .collect(Collectors.toSet());
     }
 
-    public TagDTO getProductTag (Long storeId, Long productId) throws NotFoundException {
+    public TagDTO getProductTag (String storeId, String productId) throws ResourceNotFoundException {
         Tag tag = tagRepository.findAll()
                 .stream()
                 .filter(tag1 ->
-                        tag1.getProduct().getId().equals(productId) &&
-                                tag1.getProduct().getStore().getId().equals(storeId))
+                        tag1.getProduct().getInStoreProductCode().equals(productId) &&
+                                tag1.getProduct().getStore().getStoreCode().equals(storeId))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("Tag for product id: "+productId+" not found in store:"+storeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Tag for product id: "+productId+" not found in store:"+storeId));
         return toTagDTOConverter.convert(tag);
     }
 

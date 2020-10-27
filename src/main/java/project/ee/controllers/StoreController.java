@@ -7,16 +7,18 @@ import project.ee.dto.inStoreProduct.InStoreProductDTO;
 import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.product.ProductDTO;
 import project.ee.dto.store.StoreDTO;
-import project.ee.exceptions.NotFoundException;
+import project.ee.exceptions.ResourceNotValidException;
 import project.ee.services.StoreService;
 
 import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/stores")
+@RequestMapping(StoreController.BASE_URI)
 @PreAuthorize("permitAll()")
 public class StoreController {
+
+    public static final String BASE_URI="/api/stores";
 
     private final StoreService storeService;
 
@@ -30,7 +32,7 @@ public class StoreController {
     }
 
     @GetMapping("/{id}")
-    public StoreDTO getStore(@PathVariable String id) throws NotFoundException {
+    public StoreDTO getStore(@PathVariable String id){
         return storeService.getStore(id);
     }
 
@@ -52,49 +54,47 @@ public class StoreController {
     }
     
     @DeleteMapping("/{id}")
-    public void deleteStore(@PathVariable String id) throws NotFoundException {
+    public void deleteStore(@PathVariable String id){
         storeService.deleteStore(id);
     }
 
     @PutMapping("/{id}")
-    public StoreDTO updateStore(@PathVariable String id, @RequestBody StoreDTO storeDTO)
-            throws NotFoundException {
+    public StoreDTO updateStore(@PathVariable String id, @RequestBody StoreDTO storeDTO){
         return storeService.updateStore(id,storeDTO);
     }
 
     @GetMapping("/{id}/products")
-    public StoreDTO fetchStoreAllProducts(@PathVariable String id) throws NotFoundException {
+    public StoreDTO fetchStoreAllProducts(@PathVariable String id){
         return storeService.fetchInStoreProducts(id);
     }
 
     @GetMapping("/{id}/products/category/{categoryId}")
-    public StoreDTO fetchStoreAllProductsPerCategory(@PathVariable String id, @PathVariable Long categoryId)
-            throws NotFoundException {
+    public StoreDTO fetchStoreAllProductsPerCategory(@PathVariable String id, @PathVariable String categoryId){
         return storeService.fetchCategoryInStoreProducts(id,categoryId);
     }
 
     @PutMapping("/{id}/products/{operation}")
-    public Set<InStoreProductDTO> addProduct(@PathVariable String id,
+    public InStoreProductDTO addProduct(@PathVariable String id,
                                              @PathVariable String operation,
-                                             @RequestBody MovementDTO movementDTO)
-            throws NotFoundException {
+                                             @RequestBody MovementDTO movementDTO){
         switch (operation){
             case "add":
                 return storeService.addProduct(id,movementDTO);
             case "delete":
                 return storeService.removeProduct(id,movementDTO);
             default:
-                throw new RuntimeException("Invalid operation");
+                throw new ResourceNotValidException("Invalid operation");
         }
     }
 
     @GetMapping("/{id}/threshold")
-    public Set<ProductDTO> getBelowThresholdProducts (@PathVariable String id) throws NotFoundException {
+    public Set<ProductDTO> getBelowThresholdProducts (@PathVariable String id){
         return storeService.getBelowThreshold(id);
     }
 
-        @GetMapping("/{id}/products/{productId}")
-    public InStoreProductDTO fetchInStoreProduct(@PathVariable String id,@PathVariable String productId) throws NotFoundException {
+
+    @GetMapping("/{id}/products/{productId}")
+    public InStoreProductDTO fetchInStoreProduct(@PathVariable String id,@PathVariable String productId){
         return storeService.fetchInStoreProduct(id,productId);
     }
 

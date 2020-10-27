@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-import project.ee.exceptions.NotFoundException;
-import project.ee.models.models.Category;
 import project.ee.models.models.Product;
 import project.ee.repositories.CategoryRepository;
 
@@ -28,13 +26,6 @@ public class ProductDTOToProductConverter implements Converter<ProductDTO, Produ
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setProductCode(productDTO.getProductCode());
-        if(productDTO.getCategory() != null){
-            Category category = categoryRepository.findByName(productDTO.getCategory())
-                    .orElseThrow(() -> new NotFoundException("Category : " + productDTO.getCategory() + " not found"));
-            product.setCategory(category);
-        }
-        else
-            product.setCategory(null);
         product.setQuantityThreshold(productDTO.getQuantityThreshold());
         product.setAddedDate(productDTO.getAddedDate());
         product.setLastModificationDate(productDTO.getLastModificationDate());

@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
-import project.ee.dto.category.CategoryDTO;
 import project.ee.dto.inStoreProduct.InStoreProductDTO;
-import project.ee.dto.product.ProductDTO;
 
 import java.util.Set;
 

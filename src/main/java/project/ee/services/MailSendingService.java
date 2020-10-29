@@ -29,7 +29,7 @@ public class MailSendingService {
             helper.setFrom("ee@email.com");
             helper.setTo(email.getRecipient());
             helper.setSubject(email.getSubject());
-            helper.setText(mailContentBuilderService.build(email.getBody()));
+            helper.setText(mailContentBuilderService.build(email.getBody(),email.getSubject()));
         };
         try{
             javaMailSender.send(messagePreparator);

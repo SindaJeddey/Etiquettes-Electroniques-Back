@@ -4,7 +4,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.password.PasswordDTO;
 import project.ee.dto.user.UserDTO;
-import project.ee.exceptions.ResourceNotFoundException;
 import project.ee.exceptions.ResourceNotValidException;
 import project.ee.models.notificationEmail.NotificationEmail;
 import project.ee.services.MailSendingService;
@@ -33,9 +32,7 @@ public class PasswordController {
     }
 
     @PutMapping("/token")
-    public PasswordDTO passwordResetLink (@RequestBody PasswordDTO passwordDTO) throws ResourceNotFoundException {
-        if (passwordDTO == null)
-            throw new IllegalArgumentException("Must provide an email");
+    public PasswordDTO passwordResetLink (@RequestBody PasswordDTO passwordDTO)  {
         String token = UUID.randomUUID().toString();
         UserDTO dto = userService.createPasswordResetToken(passwordDTO,token);
         NotificationEmail passwordReinitialization = new NotificationEmail(
@@ -52,9 +49,7 @@ public class PasswordController {
     }
 
     @PutMapping("/reset")
-    public String passwordReset (@RequestBody PasswordDTO passwordDTO) throws ResourceNotFoundException {
-        if (passwordDTO == null)
-            throw new IllegalArgumentException("Must provide a new password");
+    public String passwordReset (@RequestBody PasswordDTO passwordDTO) {
         String validity = passwordResetService.validateToken(passwordDTO.getToken());
         if (validity.equals("INVALID") || validity.equals("EXPIRED"))
             throw new ResourceNotValidException("Token "+validity);

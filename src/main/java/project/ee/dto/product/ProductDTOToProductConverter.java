@@ -6,17 +6,10 @@ import com.fasterxml.jackson.databind.util.Converter;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import project.ee.models.models.Product;
-import project.ee.repositories.CategoryRepository;
 
 
 @Component
 public class ProductDTOToProductConverter implements Converter<ProductDTO, Product> {
-
-    private final CategoryRepository categoryRepository;
-
-    public ProductDTOToProductConverter(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     @SneakyThrows
     @Override

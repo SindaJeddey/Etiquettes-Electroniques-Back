@@ -52,19 +52,19 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public CategoryDTO getCategory(String id) throws ResourceNotFoundException {
+    public CategoryDTO getCategory(String id) {
         Category category = categoryRepository.findByCategoryCode(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         return toCategoryDTOConverter.convert(category);
     }
 
-    public void deleteCategory(String id) throws ResourceNotFoundException {
+    public void deleteCategory(String id) {
         Category category = categoryRepository.findByCategoryCode(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         categoryRepository.delete(category);
     }
 
-    public CategoryDTO getProducts(String id) throws ResourceNotFoundException {
+    public CategoryDTO getProducts(String id) {
         Category category = categoryRepository.findByCategoryCode(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         Set<ProductDTO> dtoSet = category.getProducts()
@@ -76,7 +76,7 @@ public class CategoryService {
         return categoryDTO;
     }
 
-    public CategoryDTO updateCategory(String id, CategoryDTO categoryDTO) throws ResourceNotFoundException {
+    public CategoryDTO updateCategory(String id, CategoryDTO categoryDTO) {
         Category category = categoryRepository.findByCategoryCode(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,id)));
         if(categoryDTO.getName() != null)

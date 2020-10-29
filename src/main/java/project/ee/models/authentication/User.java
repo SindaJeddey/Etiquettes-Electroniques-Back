@@ -24,10 +24,10 @@ public class User {
     private Long id;
 
     @Column(unique = true)
-    @NotEmpty
+    @NotEmpty(message = "Must provide username")
     private String username;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide password")
     private String password;
 
     private String name;
@@ -39,10 +39,10 @@ public class User {
 
     @Column(unique = true)
     @Email
-    @NotEmpty
+    @NotEmpty(message = "Must provide email")
     private String email;
 
-    @NotEmpty
+    @NotEmpty(message = "Must provide role")
     private String role;
 
     private byte[] image;

@@ -2,7 +2,6 @@ package project.ee.dto.movement;
 
 import lombok.*;
 import project.ee.dto.inStoreProduct.InStoreProductDTO;
-import project.ee.dto.product.ProductDTO;
 
 import java.time.LocalDate;
 

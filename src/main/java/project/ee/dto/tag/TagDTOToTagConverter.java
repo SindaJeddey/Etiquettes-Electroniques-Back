@@ -7,18 +7,14 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import project.ee.dto.inStoreProduct.InStoreProductDTOToInStoreProductConverter;
 import project.ee.models.models.Tag;
-import project.ee.repositories.TransmitterRepository;
 
 @Component
 public class TagDTOToTagConverter implements Converter<TagDTO, Tag> {
 
     private final InStoreProductDTOToInStoreProductConverter toInStoreProductConverter;
-    private final TransmitterRepository transmitterRepository;
 
-    public TagDTOToTagConverter(InStoreProductDTOToInStoreProductConverter toInStoreProductConverter,
-                                TransmitterRepository transmitterRepository) {
+    public TagDTOToTagConverter(InStoreProductDTOToInStoreProductConverter toInStoreProductConverter) {
         this.toInStoreProductConverter = toInStoreProductConverter;
-        this.transmitterRepository = transmitterRepository;
     }
 
     @SneakyThrows

@@ -59,7 +59,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserDTO updateUserRole (String username, UserDTO userDTO) throws ResourceNotFoundException {
+    public UserDTO updateUserRole (String username, UserDTO userDTO) {
         User toUpdate = fetchUser(username);
 
         UserDTO savedDto;
@@ -76,14 +76,14 @@ public class UserService {
         return savedDto;
     }
 
-    public void deleteUser(String username, String role) throws ResourceNotFoundException {
+    public void deleteUser(String username, String role) {
         User toDelete = fetchUser(username);
         if (!toDelete.getRole().equals(role))
             throw new ResourceNotValidException("Incompatible username"+username+" with role "+role);
         userRepository.delete(toDelete);
     }
 
-    public UserDTO updateUser(String username, UserDTO userDTO, String role) throws ResourceNotFoundException {
+    public UserDTO updateUser(String username, UserDTO userDTO, String role) {
         User toUpdate = fetchUser(username);
         if (!toUpdate.getRole().equalsIgnoreCase(role))
             throw new ResourceNotFoundException("Can't find Username"+username+" with role"+role);
@@ -121,13 +121,13 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDTO getUserByEmail(String email) throws ResourceNotFoundException {
+    public UserDTO getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(toUserDTOConverter::convert)
                 .orElseThrow(() -> new ResourceNotFoundException("Can't find user with email "+email));
     }
 
-    public UserDTO createPasswordResetToken(PasswordDTO passwordDTO, String token) throws ResourceNotFoundException {
+    public UserDTO createPasswordResetToken(PasswordDTO passwordDTO, String token) {
         User user = userRepository.findByEmail(passwordDTO.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Can't find user with email "+passwordDTO.getEmail()));
         PasswordResetToken resetToken = new PasswordResetToken();
@@ -139,7 +139,7 @@ public class UserService {
         return toUserDTOConverter.convert(saved);
     }
 
-    public UserDTO userPasswordReset(String email, String password) throws ResourceNotFoundException {
+    public UserDTO userPasswordReset(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new ResourceNotFoundException("Email "+email+"not found"));
         user.setPassword(passwordEncoder.encode(password));
@@ -147,7 +147,7 @@ public class UserService {
         return toUserDTOConverter.convert(saved);
     }
 
-    public UserDTO getUser(String username, String role) throws ResourceNotFoundException {
+    public UserDTO getUser(String username, String role) {
         return userRepository.findByUsername(username)
                 .filter(user -> user.getRole().equals(role))
                 .map(toUserDTOConverter::convert)

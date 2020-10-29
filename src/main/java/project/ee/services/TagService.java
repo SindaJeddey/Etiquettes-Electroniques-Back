@@ -23,20 +23,20 @@ public class TagService {
         this.toTagDTOConverter = toTagDTOConverter;
     }
 
-    public TagDTO getTag(String id) throws ResourceNotFoundException {
+    public TagDTO getTag(String id){
         Tag tag =  tagRepository.findByTagCode(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag id: "+id+" not found"));
         return toTagDTOConverter.convert(tag);
     }
 
-    public Set<TagDTO> getStoreTags(String storeId) throws ResourceNotFoundException {
+    public Set<TagDTO> getStoreTags(String storeId) {
         return tagRepository.findAll()
                 .stream().filter(tag -> tag.getProduct().getStore().getStoreCode().equals(storeId))
                 .map(toTagDTOConverter::convert)
                 .collect(Collectors.toSet());
     }
 
-    public TagDTO getProductTag (String storeId, String productId) throws ResourceNotFoundException {
+    public TagDTO getProductTag (String storeId, String productId) {
         Tag tag = tagRepository.findAll()
                 .stream()
                 .filter(tag1 ->

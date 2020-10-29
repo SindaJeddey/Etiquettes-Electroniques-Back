@@ -1,11 +1,7 @@
 package project.ee.dto.promotion;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import project.ee.dto.product.ProductDTO;
-import project.ee.models.models.Product;
-
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import java.time.LocalDate;
 
 @Getter
@@ -18,6 +14,7 @@ public class PromotionDTO {
 
     private String promotionType;
 
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate promotionEndDate;
 
     private String productCode;

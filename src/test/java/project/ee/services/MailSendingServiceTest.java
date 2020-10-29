@@ -39,7 +39,7 @@ class MailSendingServiceTest {
             helper.setFrom("ee@email.com");
             helper.setTo(email.getRecipient());
             helper.setSubject(email.getSubject());
-            helper.setText(service.build(email.getBody()));
+            helper.setText(service.build(email.getBody(),email.getSubject()));
         };
     }
 

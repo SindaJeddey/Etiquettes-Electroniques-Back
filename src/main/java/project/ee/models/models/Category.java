@@ -31,7 +31,6 @@ public class Category {
     private String categoryCode;
 
     @OneToMany(
-            orphanRemoval = true,
             cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},
             mappedBy = "category")
     private Set<Product> products = new HashSet<>();

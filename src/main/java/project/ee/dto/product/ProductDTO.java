@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import project.ee.dto.inStoreProduct.InStoreProductDTO;
 
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +17,6 @@ import java.util.Set;
 public class   ProductDTO {
 
     private String name;
-    private Long quantity;
     private Long quantityThreshold;
     private LocalDate addedDate;
     private LocalDate lastModificationDate;
@@ -30,7 +28,6 @@ public class   ProductDTO {
     private String image1;
     private String image2;
     private String  image3;
-    private byte[] barcode;
     private String category;
     private Set<InStoreProductDTO> inStoreProductDTOSet = new HashSet<>();
 

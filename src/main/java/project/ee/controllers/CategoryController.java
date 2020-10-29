@@ -1,18 +1,15 @@
 package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.category.CategoryDTO;
-import project.ee.exceptions.ResourceNotValidException;
 import project.ee.services.CategoryService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(CategoryController.BASE_URI)
-//@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
-@Validated
+@PreAuthorize("hasAnyAuthority('ROLE_OPERATOR','ROLE_ADMIN')")
 public class CategoryController {
 
     public static final String BASE_URI = "/api/categories";
@@ -24,18 +21,18 @@ public class CategoryController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
     public List<CategoryDTO> getAllCategories(){
         return categoryService.getAllCategories();
     }
 
     @GetMapping("/{id}")
-//   @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
+   @PreAuthorize("hasAnyAuthority('ROLE_SUPER_OPERATOR','ROLE_OPERATOR','ROLE_ADMIN')")
     public CategoryDTO getCategory(@PathVariable String id){
         return categoryService.getCategory(id);
     }
 
-    @PostMapping("/new")
+    @PostMapping()
     public CategoryDTO addCategory(@RequestBody CategoryDTO categoryDTO){
         return categoryService.save(categoryDTO);
     }

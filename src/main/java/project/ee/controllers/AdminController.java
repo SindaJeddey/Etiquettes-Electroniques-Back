@@ -1,7 +1,6 @@
 package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.user.UserDTO;
 import project.ee.models.authentication.UserRoles;
@@ -14,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping(AdminController.BASE_URI)
 @PreAuthorize("permitAll()")
-@Validated
 public class AdminController {
 
     public static final String BASE_URI="/api/admins";
@@ -46,7 +44,7 @@ public class AdminController {
         return userService.fetchAllUsernames(UserRoles.ADMIN.name());
     }
 
-    @PostMapping("/new")
+    @PostMapping()
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newAdmin(@RequestBody UserDTO dto){
         UserDTO savedDto = userService.saveNewUser(dto,UserRoles.ADMIN.name());

@@ -45,7 +45,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .addedDate(LocalDate.now())
                 .unity("cm")
                 .devise("Dinar")
-                .productCode(RandomStringUtils.randomAlphabetic(10))
+                .productCode("1")
+//                .productCode(RandomStringUtils.randomAlphabetic(10))
                 .longDescription("Long description prod1")
                 .shortDescription("Short description prod1")
                 .image1("image1 prod1")
@@ -67,7 +68,8 @@ public class DataBootstrap implements CommandLineRunner {
                 .addedDate(LocalDate.now())
                 .unity("l")
                 .devise("Dollar")
-                .productCode(RandomStringUtils.randomAlphabetic(10))
+                .productCode("2")
+//                .productCode(RandomStringUtils.randomAlphabetic(10))
                 .longDescription("Long description prod2")
                 .shortDescription("Short description prod2")
                 .image1("image1 prod2")
@@ -77,14 +79,16 @@ public class DataBootstrap implements CommandLineRunner {
 
         Category cat1 = Category.builder()
                 .name("Cat 1")
-                .categoryCode(RandomStringUtils.randomAlphabetic(5))
+                .categoryCode("1")
+//                .categoryCode(RandomStringUtils.randomAlphabetic(5))
                 .products(new HashSet<>())
                 .build();
         cat1.addProduct(product1);
 
         Category cat2 = Category.builder()
                 .name("Cat 2")
-                .categoryCode(RandomStringUtils.randomAlphabetic(5))
+                .categoryCode("2")
+//                .categoryCode(RandomStringUtils.randomAlphabetic(5))
                 .products(new HashSet<>())
                 .build();
         cat2.addProduct(product2);
@@ -93,14 +97,16 @@ public class DataBootstrap implements CommandLineRunner {
                 .name("Store 1")
                 .location("Aouina")
                 .zipCode("2045")
-                .storeCode(RandomStringUtils.randomAlphabetic(10))
+                .storeCode("1")
+//                .storeCode(RandomStringUtils.randomAlphabetic(10))
                 .inStoreProducts(new HashSet<>())
                 .build();
 
         Store store2 = Store.builder()
                 .name("Store 2")
                 .location("Lac1")
-                .storeCode(RandomStringUtils.randomAlphabetic(10))
+                .storeCode("2")
+//                .storeCode(RandomStringUtils.randomAlphabetic(10))
                 .zipCode("2044")
                 .inStoreProducts(new HashSet<>())
                 .build();
@@ -168,6 +174,6 @@ public class DataBootstrap implements CommandLineRunner {
                 .build();
         userService.saveUser(superOperator);
 
-        log.info("Users loaded in database ...");
+        log.info("LOADING USERS ...");
     }
 }

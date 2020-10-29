@@ -1,7 +1,6 @@
 package project.ee.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.user.UserDTO;
 import project.ee.models.notificationEmail.NotificationEmail;
@@ -15,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(OperatorController.BASE_URI)
-@Validated
 public class OperatorController {
 
     public static final String BASE_URI="/api/operators";
@@ -47,7 +45,7 @@ public class OperatorController {
         return userService.fetchAllUsernames(UserRoles.OPERATOR.name());
     }
 
-    @PostMapping("/new")
+    @PostMapping()
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserDTO newOperator(@RequestBody UserDTO dto){
         UserDTO savedDto = userService.saveNewUser(dto,UserRoles.OPERATOR.name());

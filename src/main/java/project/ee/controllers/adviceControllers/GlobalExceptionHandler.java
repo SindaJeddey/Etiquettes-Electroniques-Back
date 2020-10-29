@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotValidException.class)
-    public ResponseEntity<ApiError> handleNotValidException(ResourceNotFoundException exception) {
+    public ResponseEntity<ApiError> handleNotValidException(ResourceNotValidException exception) {
         List<String> details = new ArrayList<>();
         details.add(exception.getMessage());
 

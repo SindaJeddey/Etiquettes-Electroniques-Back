@@ -10,7 +10,6 @@ import project.ee.dto.promotion.PromotionDTO;
 import project.ee.dto.promotion.PromotionDTOToPromotionConverter;
 import project.ee.dto.promotion.PromotionToPromotionDTOConverter;
 import project.ee.exceptions.ResourceNotFoundException;
-import project.ee.exceptions.ResourceNotValidException;
 import project.ee.models.models.Category;
 import project.ee.models.models.Product;
 import project.ee.models.models.Promotion;
@@ -33,7 +32,7 @@ public class ProductService {
     private final PromotionDTOToPromotionConverter toPromotionConverter;
     private final PromotionToPromotionDTOConverter toPromotionDTOConverter;
 
-    private static final String NOT_FOUND ="%s %d not found";
+    private static final String NOT_FOUND ="%s %s not found";
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
@@ -53,6 +52,15 @@ public class ProductService {
         return productRepository.findByProductCode(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,"Product",id)));
     }
+
+    private Product fetchProductFromCategory(Category category,String code){
+        Category savedCategory = categoryRepository.save(category);
+        return savedCategory.getProducts()
+                .stream()
+                .filter(product -> product.getProductCode().equals(code))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not saved"));
+    }
     public List<ProductDTO> getAllProducts (){
         return  productRepository
                 .findAll()
@@ -61,7 +69,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public ProductDTO getProduct(String id) throws ResourceNotFoundException {
+    public ProductDTO getProduct(String id) {
         Product product = fetchProduct(id);
         return toProductDTOConverter.convert(product);
     }
@@ -71,18 +79,21 @@ public class ProductService {
         toSave.setAddedDate(LocalDate.now());
         toSave.setProductCode(RandomStringUtils.randomAlphabetic(10));
         toSave.setLastModificationDate(LocalDate.now());
-        if (toSave.getCategory() == null)
-            throw new ResourceNotValidException("Must provide a category code");
+        Optional<Category> optionalCategory = categoryRepository.findByCategoryCode(productDTO.getCategory());
+        if (!optionalCategory.isPresent())
+            throw new ResourceNotFoundException(String.format(NOT_FOUND,"Category",productDTO.getCategory()));
         else {
-            Product saved = productRepository.save(toSave);
-            saved.getCategory().addProduct(saved);
+            Category category = optionalCategory.get();
+            category.addProduct(toSave);
+            Product saved = fetchProductFromCategory(category,toSave.getProductCode());
             return toProductDTOConverter.convert(saved);
         }
     }
 
-    public ProductDTO updateProduct(String id, ProductDTO productDTO) throws ResourceNotFoundException {
+    //Can't update
+    public ProductDTO updateProduct(String id, ProductDTO productDTO) {
         Product productToUpdate = fetchProduct(id);
-        ProductDTO updatedDto;
+        Product saved;
         if(productDTO.getName() != null)
             productToUpdate.setName(productDTO.getName());
         if(productDTO.getLongDescription() != null) {
@@ -101,34 +112,39 @@ public class ProductService {
             productToUpdate.setQuantityThreshold(productDTO.getQuantityThreshold());
         }
         productToUpdate.setLastModificationDate(LocalDate.now());
-        if(productDTO.getCategory() != null){
+        if(productDTO.getCategory() != null && !productDTO.getCategory().isEmpty()){
+            Category oldCategory = productToUpdate.getCategory();
+            oldCategory.removeProduct(productToUpdate);
             Category category = categoryRepository.findByCategoryCode(productDTO.getCategory())
                     .orElseThrow(() -> new ResourceNotFoundException(String.format(NOT_FOUND,"Category",productDTO.getCategory())));
-            productToUpdate.setCategory(category);
+            category.addProduct(productToUpdate);
+            categoryRepository.save(oldCategory);
+            Category newCategory = categoryRepository.save(category);
+            saved = fetchProductFromCategory(newCategory,id);
+            return toProductDTOConverter.convert(saved);
         }
-        Product saved = productRepository.save(productToUpdate);
-        saved.getCategory().addProduct(saved);
-        updatedDto = toProductDTOConverter.convert(saved);
-        return updatedDto;
+        saved = productRepository.save(productToUpdate);
+        return toProductDTOConverter.convert(saved);
     }
 
-    public void deleteProduct(String id) throws ResourceNotFoundException {
+    public void deleteProduct(String id){
         Product product = fetchProduct(id);
         Category category = product.getCategory();
         category.removeProduct(product);
         productRepository.delete(product);
     }
 
-    public void addPromotion(String id, PromotionDTO promotionDTO) throws ResourceNotFoundException {
+    public void addPromotion(String id, PromotionDTO promotionDTO){
         if(this.getCurrentPromotion(id) == null){
             Product product = fetchProduct(id);
             Promotion promotion = toPromotionConverter.convert(promotionDTO);
+            promotion.setPromoCode(RandomStringUtils.randomAlphabetic(5));
             product.addPromotion(promotion);
             productRepository.save(product);
         }
     }
 
-    public PromotionDTO getCurrentPromotion(String id) throws ResourceNotFoundException {
+    public PromotionDTO getCurrentPromotion(String id){
         Product product = fetchProduct(id);
         Optional<Promotion> promo = product.getPromotions()
                 .stream()

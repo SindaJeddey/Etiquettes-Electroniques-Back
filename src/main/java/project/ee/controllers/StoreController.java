@@ -5,9 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import project.ee.dto.inStoreProduct.InStoreProductDTO;
 import project.ee.dto.movement.MovementDTO;
-import project.ee.dto.product.ProductDTO;
 import project.ee.dto.store.StoreDTO;
-import project.ee.exceptions.ResourceNotValidException;
 import project.ee.services.StoreService;
 
 import java.util.List;
@@ -46,10 +44,8 @@ public class StoreController {
         return storeService.getAllStoresByLocation(location);
     }
 
-    @PostMapping("/new")
+    @PostMapping()
     public StoreDTO newStore(@RequestBody StoreDTO storeDTO){
-        if (storeDTO == null)
-            throw new IllegalArgumentException("Must provide a store to save");
         return storeService.addStore(storeDTO);
     }
     
@@ -73,22 +69,18 @@ public class StoreController {
         return storeService.fetchCategoryInStoreProducts(id,categoryId);
     }
 
-    @PutMapping("/{id}/products/{operation}")
-    public InStoreProductDTO addProduct(@PathVariable String id,
-                                             @PathVariable String operation,
-                                             @RequestBody MovementDTO movementDTO){
-        switch (operation){
-            case "add":
-                return storeService.addProduct(id,movementDTO);
-            case "delete":
-                return storeService.removeProduct(id,movementDTO);
-            default:
-                throw new ResourceNotValidException("Invalid operation");
-        }
+    @PutMapping("/{id}/products/add")
+    public InStoreProductDTO addProduct(@PathVariable String id, @RequestBody MovementDTO movementDTO){
+        return storeService.addProduct(id,movementDTO);
+    }
+
+    @PutMapping("/{id}/products/delete")
+    public void deleteInStoreProduct(@PathVariable String id, @RequestBody MovementDTO movementDTO){
+        storeService.removeProduct(id,movementDTO);
     }
 
     @GetMapping("/{id}/threshold")
-    public Set<ProductDTO> getBelowThresholdProducts (@PathVariable String id){
+    public Set<InStoreProductDTO> getBelowThresholdProducts (@PathVariable String id){
         return storeService.getBelowThreshold(id);
     }
 

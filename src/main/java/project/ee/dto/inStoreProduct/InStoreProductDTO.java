@@ -20,6 +20,7 @@ public class InStoreProductDTO {
     private StoreDTO store;
     private TagDTO tag;
     private String inStoreProductCode;
+    private Long quantity;
     private Set<MovementDTO> movements = new HashSet<>();
 
 }

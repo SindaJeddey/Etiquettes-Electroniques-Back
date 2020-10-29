@@ -27,6 +27,7 @@ public class InStoreProductToInStoreProductDTOConverter implements Converter<InS
                 .product(toProductDTOConverter.convert(inStoreProduct.getProduct()))
                 .inStoreProductCode(inStoreProduct.getInStoreProductCode())
                 .store(toStoreDTOConverter.convert(inStoreProduct.getStore()))
+                .quantity(inStoreProduct.getQuantity())
                 .build();
     }
 

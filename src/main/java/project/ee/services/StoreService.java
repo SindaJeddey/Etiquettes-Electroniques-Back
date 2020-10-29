@@ -8,8 +8,6 @@ import project.ee.dto.inStoreProduct.InStoreProductDTOToInStoreProductConverter;
 import project.ee.dto.inStoreProduct.InStoreProductToInStoreProductDTOConverter;
 import project.ee.dto.movement.MovementDTO;
 import project.ee.dto.movement.MovementDTOToMovementConverter;
-import project.ee.dto.product.ProductDTO;
-import project.ee.dto.product.ProductToProductDTOConverter;
 import project.ee.dto.store.StoreDTO;
 import project.ee.dto.store.StoreDTOToStoreConverter;
 import project.ee.dto.store.StoreToStoreDTOConverter;
@@ -35,7 +33,6 @@ public class StoreService {
     private final StoreDTOToStoreConverter toStoreConverter;
     private final StoreToStoreDTOConverter toStoreDTOConverter;
     private final InStoreProductDTOToInStoreProductConverter toInStoreProductConverter;
-    private final ProductToProductDTOConverter toProductDTOConverter;
     private final InStoreProductToInStoreProductDTOConverter toInStoreProductDTOConverter;
     private final MovementDTOToMovementConverter toMovementConverter;
 
@@ -45,7 +42,6 @@ public class StoreService {
                         StoreDTOToStoreConverter toStoreConverter,
                         StoreToStoreDTOConverter toStoreDTOConverter,
                         InStoreProductDTOToInStoreProductConverter toInStoreProductConverter,
-                        ProductToProductDTOConverter toProductDTOConverter,
                         InStoreProductToInStoreProductDTOConverter toInStoreProductDTOConverter,
                         MovementDTOToMovementConverter toMovementConverter) {
         this.storeRepository = storeRepository;
@@ -54,12 +50,11 @@ public class StoreService {
         this.toStoreConverter = toStoreConverter;
         this.toStoreDTOConverter = toStoreDTOConverter;
         this.toInStoreProductConverter = toInStoreProductConverter;
-        this.toProductDTOConverter = toProductDTOConverter;
         this.toInStoreProductDTOConverter = toInStoreProductDTOConverter;
         this.toMovementConverter = toMovementConverter;
     }
 
-    private Store fetchStore(String  id) throws ResourceNotFoundException {
+    private Store fetchStore(String  id){
         return storeRepository.findByStoreCode(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Store id: " + id + " not found"));
     }
@@ -75,24 +70,24 @@ public class StoreService {
                 .collect(Collectors.toList());
     }
 
-    public StoreDTO getStore(String id) throws ResourceNotFoundException {
+    public StoreDTO getStore(String id)  {
         Store store = fetchStore(id);
         return toStoreDTOConverter.convert(store);
     }
 
     public StoreDTO addStore(StoreDTO storeDTO) {
         Store toSave = toStoreConverter.convert(storeDTO);
-        Store saved = storeRepository.save(toSave);
         toSave.setStoreCode(RandomStringUtils.randomAlphabetic(5));
+        Store saved = storeRepository.save(toSave);
         return toStoreDTOConverter.convert(saved);
     }
 
-    public void deleteStore(String id) throws ResourceNotFoundException {
+    public void deleteStore(String id)  {
         Store store = fetchStore(id);
         storeRepository.delete(store);
     }
 
-    public StoreDTO updateStore(String id, StoreDTO storeDTO) throws ResourceNotFoundException {
+    public StoreDTO updateStore(String id, StoreDTO storeDTO) {
         Store store = fetchStore(id);
         if(storeDTO.getName() != null)
             store.setName(storeDTO.getName());
@@ -104,7 +99,7 @@ public class StoreService {
         return toStoreDTOConverter.convert(saved);
     }
 
-    public InStoreProductDTO addProduct(String storeId, MovementDTO movementDTO) throws ResourceNotFoundException {
+    public InStoreProductDTO addProduct(String storeId, MovementDTO movementDTO){
         if (!movementDTO.getType().equals(MovementType.IN.name()))
             throw new ResourceNotValidException("Invalid Transaction");
 
@@ -118,21 +113,21 @@ public class StoreService {
                 inStoreProduct.getProduct().getProductCode().isEmpty() )
             throw new ResourceNotFoundException("Must provide product to add to store");
 
-        Optional<Product> product = productRepository.findByProductCode(inStoreProduct.getProduct().getProductCode());
-        if(!product.isPresent())
-            throw new ResourceNotFoundException("Product code:"+inStoreProduct.getProduct().getProductCode()+"non existing");
+        Optional<Product> optionalProduct = productRepository.findByProductCode(inStoreProduct.getProduct().getProductCode());
+        if(!optionalProduct.isPresent())
+            throw new ResourceNotFoundException("Product code: "+inStoreProduct.getProduct().getProductCode()+"non existing");
 
         boolean productExisting = store.getInStoreProducts()
                 .stream()
                 .anyMatch(inStoreProduct1 ->
-                        inStoreProduct1.getProduct().equals(inStoreProduct.getProduct()));
+                        inStoreProduct1.getProduct().getProductCode().equals(inStoreProduct.getProduct().getProductCode()));
 
         if(productExisting) {
             throw new ResourceNotValidException("Product already exists in store");
         }
 
-        inStoreProduct.setStore(store);
-        inStoreProduct.setProduct(product.get());
+        Product product = optionalProduct.get();
+        product.addInStoreProduct(inStoreProduct);
         inStoreProduct.setInStoreProductCode(RandomStringUtils.randomAlphabetic(10));
         inStoreProduct.setQuantity(movementDTO.getQuantity());
         if (inStoreProduct.getQuantity() <= inStoreProduct.getProduct().getQuantityThreshold()) {
@@ -147,18 +142,23 @@ public class StoreService {
         inStoreProduct.addMovement(movement);
 
         Tag tag = Tag.builder()
-                .product(inStoreProduct)
+                .tagCode(RandomStringUtils.randomAlphabetic(10))
+                .type("Tag type2")
+                .name("Tag2 ")
                 .build();
-        inStoreProduct.setTag(tag);
         tag.setProduct(inStoreProduct);
+        inStoreProduct.setTag(tag);
+
         store.addInStoreProduct(inStoreProduct);
+
+        productRepository.save(product);
 
         storeRepository.save(store);
 
         return toInStoreProductDTOConverter.convert(inStoreProduct);
     }
 
-    public InStoreProductDTO removeProduct(String storeId, MovementDTO movementDTO) throws ResourceNotFoundException {
+    public void removeProduct(String storeId, MovementDTO movementDTO) {
         if (!movementDTO.getType().equals(MovementType.OUT.name()))
             throw new ResourceNotValidException("Invalid Transaction");
 
@@ -179,11 +179,9 @@ public class StoreService {
         inStoreProductRepository.delete(finalInStoreProduct);
         productRepository.save(product);
         storeRepository.save(store);
-
-        return toInStoreProductDTOConverter.convert(inStoreProduct);
     }
 
-    public StoreDTO fetchInStoreProducts(String id) throws ResourceNotFoundException {
+    public StoreDTO fetchInStoreProducts(String id) {
         Store store = fetchStore(id);
         Set<InStoreProductDTO> productDTOS = store.getInStoreProducts()
                 .stream()
@@ -194,7 +192,7 @@ public class StoreService {
         return dto;
     }
 
-    public StoreDTO fetchCategoryInStoreProducts(String id, String categoryId) throws ResourceNotFoundException {
+    public StoreDTO fetchCategoryInStoreProducts(String id, String categoryId) {
         Store store = fetchStore(id);
         Set<InStoreProductDTO> productDTOS = store.getInStoreProducts()
                 .stream()
@@ -220,15 +218,15 @@ public class StoreService {
                 .collect(Collectors.toList());
     }
 
-    public Set<ProductDTO> getBelowThreshold(String id) throws ResourceNotFoundException {
+    public Set<InStoreProductDTO> getBelowThreshold(String id){
         Store store = fetchStore(id);
         return store.getInStoreProducts()
                 .stream().filter(InStoreProduct::isAlertThreshold)
-                .map(inStoreProduct -> toProductDTOConverter.convert(inStoreProduct.getProduct()))
+                .map(toInStoreProductDTOConverter::convert)
                 .collect(Collectors.toSet());
     }
 
-    public InStoreProductDTO fetchInStoreProduct(String storeId, String productId) throws ResourceNotFoundException {
+    public InStoreProductDTO fetchInStoreProduct(String storeId, String productId){
         Store store = fetchStore(storeId);
         Optional<InStoreProduct> inStoreProduct = store.getInStoreProducts()
                 .stream()

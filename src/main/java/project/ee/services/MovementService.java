@@ -31,7 +31,7 @@ public class MovementService {
         this.inStoreProductRepository = inStoreProductRepository;
     }
 
-    public Set<MovementDTO> getMovements(String productId) throws ResourceNotFoundException {
+    public Set<MovementDTO> getMovements(String productId) {
         InStoreProduct inStoreProduct = inStoreProductRepository.findByInStoreProductCode(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product in store not found: "+productId));
         return inStoreProduct.getMovements()
@@ -40,7 +40,7 @@ public class MovementService {
                 .collect(Collectors.toSet());
     }
 
-    public void addMovement(MovementDTO movementDTO) throws ResourceNotFoundException {
+    public void addMovement(MovementDTO movementDTO){
         if(!movementDTO.getType().equals(MovementType.OUT.name())
                 && !movementDTO.getType().equals(MovementType.IN.name())){
             throw new ResourceNotValidException("Invalid transaction");
@@ -70,7 +70,7 @@ public class MovementService {
         else
             inStoreProduct.setQuantity(inStoreProduct.getQuantity()+movement.getQuantity());
         if(inStoreProduct.getProduct().getQuantityThreshold() > inStoreProduct.getQuantity())
-            inStoreProduct.setAlertThreshold(true   );
+            inStoreProduct.setAlertThreshold(true);
         inStoreProduct.addMovement(movement);
         inStoreProductRepository.save(inStoreProduct);
     }

@@ -23,7 +23,6 @@ public class ProductToProductDTOConverter implements Converter<Product, ProductD
         dto.setDevise(product.getDevise());
         dto.setLongDescription(product.getLongDescription());
         dto.setShortDescription(product.getShortDescription());
-        dto.setProductCode(product.getProductCode());
         dto.setImage1(product.getImage1());
         dto.setImage2(product.getImage2());
         dto.setImage3(product.getImage3());
